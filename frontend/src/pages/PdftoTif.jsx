@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button, Flex, Heading, Input, InputGroup, InputRightElement, Tag, TagCloseButton, TagLabel, Text } from '@chakra-ui/react';
+import { Button, Flex, Heading, Input, InputGroup, InputRightElement, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
 import SideNav from '../components/SideNav';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaBan } from 'react-icons/fa';
 import axios from 'axios'
 
 const PDFtotifPage = () => {
@@ -143,7 +143,9 @@ const PDFtotifPage = () => {
           {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
           <Flex flexDir='row' justifyContent='flex-end' gap={2} mt={1} w='50vh'>
             <Button onClick={handleResetAll}>Reset All</Button>
-            <Button colorScheme='teal' onClick={handleSubmit}>Submit</Button>
+            {tags.length === 0 ? <Tooltip label='Please enter one or more AWB'>
+              <Button colorScheme='teal' isDisabled='true'><FaBan color='red' /></Button>
+            </Tooltip> : <Button colorScheme='teal' onClick={handleSubmit}>Convert</Button>}
           </Flex>
         </Flex>
       </Flex>
