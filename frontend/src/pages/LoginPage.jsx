@@ -1,4 +1,4 @@
-import {  Input, FormControl, FormLabel,  Button, Grid, GridItem, Center, Tabs, TabList, Tab, TabPanels, TabPanel, ListItem, ListIcon, List, Flex } from '@chakra-ui/react';
+import { Input, FormControl, FormLabel, Button, Grid, GridItem, Center, Tabs, TabList, Tab, TabPanels, TabPanel, ListItem, ListIcon, List, Flex } from '@chakra-ui/react';
 import { Image } from '@chakra-ui/react'
 import { BiHourglass, BiLabel, BiMessageSquareDots } from 'react-icons/bi';
 import lexshipLogo from '../assets/lexship.png'
@@ -7,7 +7,7 @@ const LoginPage = () => {
     return (
         <Center>
 
-            <Grid templateColumns='repeat(2, 1fr)'  mt='10'>
+            <Grid templateColumns='repeat(2, 1fr)' mt='10'>
                 <GridItem w='80vh' h='90vh' bgGradient='linear(to-l, blue.900, purple.800)' borderLeftRadius="10" p='10vh'>
                     <Flex direction='column' align='center'>
 
