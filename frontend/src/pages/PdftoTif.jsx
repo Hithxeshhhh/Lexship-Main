@@ -67,25 +67,35 @@ const PDFtotifPage = () => {
     setTags([]);
     setError('');
   };
- 
+
   const handleSubmit = async () => {
     try {
       const res = await axios.post('http://localhost:5000/api/v1/upload-convert', { awbNumbers: tags }, { responseType: 'arraybuffer' });
       console.log('Response:', res);
-  
+
       // Check if response is valid
       if (!res.data) {
         console.error('Empty response received.');
         return;
       }
-  
+
       // Create a Blob object from the array buffer data
       const blob = new Blob([res.data], { type: 'application/zip' });
-  
+
       // Create a Blob URL
       const url = window.URL.createObjectURL(blob);
-      const timestamp = new Date().toISOString().replace(/[-:]/g, '_');
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
+      console.log(timestamp);
       const filename = `${timestamp}.zip`;
+      console.log(filename)
       // Create a temporary link and initiate the download
       const link = document.createElement('a');
       link.href = url;
@@ -99,8 +109,7 @@ const PDFtotifPage = () => {
       console.error('Error:', err);
     }
   };
-  
-  
+
   return (
     <Flex flexDir='row'>
       <SideNav />
