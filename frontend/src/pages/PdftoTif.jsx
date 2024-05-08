@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Flex, Heading, Input, InputGroup, InputRightElement, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, Flex, Heading, Input, InputGroup, InputRightElement, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
 import SideNav from '../components/SideNav';
 import { FaArrowRight, FaBan } from 'react-icons/fa';
 import axios from 'axios'
@@ -8,6 +8,9 @@ const PDFtotifPage = () => {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -49,6 +52,7 @@ const PDFtotifPage = () => {
           setTags([...tags, ...uniqueNewTags]);
         } else {
           setError('One or more AWB numbers already exist.');
+
         }
         setTags([...tags, ...uniqueNewTags]);
       } else {
@@ -70,6 +74,7 @@ const PDFtotifPage = () => {
 
   const handleSubmit = async () => {
     try {
+      setLoading(true)
       const res = await axios.post('http://localhost:5000/api/v1/upload-convert', { awbNumbers: tags }, { responseType: 'arraybuffer' });
       console.log('Response:', res);
 
@@ -105,8 +110,12 @@ const PDFtotifPage = () => {
       // Clean up
       window.URL.revokeObjectURL(url);
       setTags([]);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error('Error:', err);
+    } finally {
+      setLoading(false); // Set loading state back to false
     }
   };
 
@@ -114,6 +123,12 @@ const PDFtotifPage = () => {
     <Flex flexDir='row'>
       <SideNav />
       <Flex w='100%' align='center' flexDir='column' p='1%' ml='30vh'>
+        {success && (
+          <Alert status="success" w="50vh" mt={2}>
+            <AlertIcon />
+            File downloaded successfully.
+          </Alert>
+        )}
         <Heading size='lg' color='gray.400'>PDF to TIF</Heading>
         <Flex flexWrap="wrap" w='50vh' mt='2vh'>
           <Heading fontSize='18px' fontWeight='500' color='gray.300' mr={3}>AWB numbers:</Heading>
@@ -143,9 +158,11 @@ const PDFtotifPage = () => {
           {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
           <Flex flexDir='row' justifyContent='flex-end' gap={2} mt={1} w='50vh'>
             <Button onClick={handleResetAll}>Reset All</Button>
-            {tags.length === 0 ? <Tooltip label='Please enter one or more AWB'>
-              <Button colorScheme='teal' isDisabled='true'><FaBan color='red' /></Button>
-            </Tooltip> : <Button colorScheme='teal' onClick={handleSubmit}>Convert</Button>}
+            {tags.length === 0 ?
+              (<Tooltip label='Please enter one or more AWB'>
+                <Button colorScheme='teal' isDisabled='true'><FaBan color='red' /></Button>
+              </Tooltip>) :
+              (<Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>{loading ? <Spinner size='sm' color='white' /> : 'Convert'}</Button>)}
           </Flex>
         </Flex>
       </Flex>
