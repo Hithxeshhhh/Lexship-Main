@@ -10,6 +10,7 @@ require('dotenv').config();
 
 // Initialize PDFNet
 PDFNet.initialize(process.env.API_LICENSE_KEY);
+// PDFNet.runWithCleanup(()=>{this.convertController2}, process.env.API_LICENSE_KEY).then(()=> PDFNet.shutdown());
 
 async function compresstozip(folderPath) {
     return new Promise((resolve, reject) => {
@@ -118,7 +119,9 @@ exports.convertController2 = async (req, res) => {
             for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
                 const page = await doc.getPage(pageNum);
                 await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
+                
             }
+            doc.destroy();
         }
         await combineTiffs();
         //   await new Promise(resolve => setTimeout(resolve, 10000));
@@ -126,12 +129,25 @@ exports.convertController2 = async (req, res) => {
         const zipFilePath = await compresstozip(outputFolder); // Generate the ZIP file
         const zipFile = fs.readFileSync(zipFilePath);
         
+        fs.unlinkSync(zipFilePath);
+        pdfFiles.forEach(pdfFile => {
+            const pdfFilePath = path.join(inputFolder, pdfFile);
+            fs.unlinkSync(pdfFilePath);
+        });
+        const tifFiles = fs.readdirSync(outputFolder).filter(file => file.endsWith('.tif'));
+        tifFiles.forEach(tifFile => {
+            const tifFilePath = path.join(outputFolder, tifFile);
+            fs.unlinkSync(tifFilePath);
+        });
+        
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', 'attachment; filename=converted_files.zip');
         res.status(200).send(zipFile);
+        
     } catch (error) {
         console.error('Error converting PDFs to TIFF:', error);
         res.status(500).send('Error converting PDFs to TIFF.');
     }
 };
+PDFNet.shutdown();
 
