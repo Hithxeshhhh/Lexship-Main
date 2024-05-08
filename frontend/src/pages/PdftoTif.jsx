@@ -67,21 +67,40 @@ const PDFtotifPage = () => {
     setTags([]);
     setError('');
   };
-  const handleSubmit =async () => {
+ 
+  const handleSubmit = async () => {
     try {
-      console.log('clicked')
-      const res = await axios.post('http://localhost:5000/api/v1/upload-convert', {awbNumbers: tags});
-      const url = window.URL.createObjectURL(new Blob([res.data]), { type: 'application/zip' });
+      const res = await axios.post('http://localhost:5000/api/v1/upload-convert', { awbNumbers: tags }, { responseType: 'arraybuffer' });
+      console.log('Response:', res);
+  
+      // Check if response is valid
+      if (!res.data) {
+        console.error('Empty response received.');
+        return;
+      }
+  
+      // Create a Blob object from the array buffer data
+      const blob = new Blob([res.data], { type: 'application/zip' });
+  
+      // Create a Blob URL
+      const url = window.URL.createObjectURL(blob);
+      const timestamp = new Date().toISOString().replace(/[-:]/g, '_');
+      const filename = `${timestamp}.zip`;
+      // Create a temporary link and initiate the download
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${Date.now()}.zip`);
+      link.setAttribute('download', filename); // Set desired filename here
       document.body.appendChild(link);
       link.click();
       // Clean up
       window.URL.revokeObjectURL(url);
       setTags([]);
-    } catch (err) { console.log(err) }
-  }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+  
+  
   return (
     <Flex flexDir='row'>
       <SideNav />
