@@ -11,34 +11,34 @@ require('dotenv').config();
 // Initialize PDFNet
 PDFNet.initialize(process.env.API_LICENSE_KEY);
 
-// async function compresstozip(folderPath) {
-//     return new Promise((resolve, reject) => {
-//         const output = fs.createWriteStream('compressed.zip');
-//         const archive = archiver('zip', {
-//             zlib: { level: 9 } // Set compression level to maximum
-//         });
+async function compresstozip(folderPath) {
+    return new Promise((resolve, reject) => {
+        const output = fs.createWriteStream('compressed.zip');
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Set compression level to maximum
+        });
 
-//         output.on('close', function () {
-//             console.log('Archive wrote %d bytes', archive.pointer());
-//             resolve('compressed.zip');
-//         });
+        output.on('close', function () {
+            console.log('Archive wrote %d bytes', archive.pointer());
+            resolve('compressed.zip');
+        });
 
-//         archive.on('error', function (err) {
-//             reject(err);
-//         });
+        archive.on('error', function (err) {
+            reject(err);
+        });
 
-//         archive.pipe(output);
+        archive.pipe(output);
 
-//         // Add all TIFF files in the folder to the archive
-//         const files = fs.readdirSync(folderPath).filter(file => file.endsWith('.tif'));
-//         files.forEach(file => {
-//             const filePath = path.join(folderPath, file);
-//             archive.append(fs.createReadStream(filePath), { name: file });
-//         });
+        // Add all TIFF files in the folder to the archive
+        const files = fs.readdirSync(folderPath).filter(file => file.endsWith('.tif'));
+        files.forEach(file => {
+            const filePath = path.join(folderPath, file);
+            archive.append(fs.createReadStream(filePath), { name: file });
+        });
 
-//         archive.finalize();
-//     });
-// }
+        archive.finalize();
+    });
+}
 
 async function combineTiffs() {
     try {
@@ -120,16 +120,18 @@ exports.convertController2 = async (req, res) => {
                 await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
             }
         }
-
         await combineTiffs();
         //   await new Promise(resolve => setTimeout(resolve, 10000));
         //   await remFiles();
-        // const zipFilePath = await compresstozip(outputFolder); // Generate the ZIP file
-
-        // // Send the path of the ZIP file as response
-        // res.status(200).json({ zipFilePath });
+        const zipFilePath = await compresstozip(outputFolder); // Generate the ZIP file
+        const zipFile = fs.readFileSync(zipFilePath);
+        
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', 'attachment; filename=converted_files.zip');
+        res.status(200).send(zipFile);
     } catch (error) {
         console.error('Error converting PDFs to TIFF:', error);
         res.status(500).send('Error converting PDFs to TIFF.');
     }
 };
+
