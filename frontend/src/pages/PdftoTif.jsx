@@ -75,7 +75,7 @@ const PDFtotifPage = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true)
-      const res = await axios.post('http://localhost:5000/api/v1/upload-convert', { awbNumbers: tags }, { responseType: 'arraybuffer' });
+      const res = await axios.post('http://139.59.17.7:5000/api/v1/upload-convert', { awbNumbers: tags }, { responseType: 'arraybuffer' });
       console.log('Response:', res);
 
       // Check if response is valid
@@ -111,7 +111,7 @@ const PDFtotifPage = () => {
       window.URL.revokeObjectURL(url);
       setTags([]);
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
       console.error('Error:', err);
     } finally {
