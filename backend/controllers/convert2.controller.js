@@ -93,6 +93,8 @@ async function combineTiffs() {
 exports.convertController2 = async (req, res) => {
     try {
         const { successfulDownloads, failedDownloads } = req;
+        if(JSON.stringify(successfulDownloads).length!==2){
+    
         const inputFolder = path.join(__dirname, '../uploads/');
         const outputFolder = path.join(__dirname, '../convertedTif/');
 
@@ -141,6 +143,9 @@ exports.convertController2 = async (req, res) => {
         res.setHeader('successful',JSON.stringify(successfulDownloads))
         res.setHeader('failed',JSON.stringify(failedDownloads))
         res.status(200).send(zipFile);
+    }else{
+        res.status(400).json({message:'Enter valid AWBs'})
+    }
 
     } catch (error) {
         console.error('Error converting PDFs to TIFF:', error);

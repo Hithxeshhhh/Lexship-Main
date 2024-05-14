@@ -1,5 +1,5 @@
-import  { useState } from 'react';
-import { Alert, AlertIcon, Button, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Alert, AlertIcon, Button, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
 import SideNav from '../components/SideNav';
 import { FaArrowRight, FaBan } from 'react-icons/fa';
 import axios from 'axios'
@@ -133,21 +133,14 @@ const PDFtotifPage = () => {
             </InputRightElement>
           </InputGroup>
           {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
-          <Flex flexDir='row' justifyContent='flex-end' gap={2} mt={1} w='80vh'>
-            <Button onClick={handleResetAll}>Reset All</Button>
-            {tags.length === 0 && successfulAWBs.length===0 && failedAWBs.length===0 ?
-              (<Tooltip label='Please enter one or more AWB'>
-                <Button colorScheme='teal' isDisabled={true}><FaBan color='red' /></Button>
-              </Tooltip>) :
-              (<Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>{loading ? <Spinner size='sm' color='white' /> : 'Convert'}</Button>)}
-          </Flex>
+
         </Flex>
         <Flex w='100%' flexDir='col' p={3} justifyContent='space-around' alignItems='center' mt={5}>
-          <Grid templateColumns='repeat(2,1fr)' gap={9}>
-            {tags.length !== 0 &&
-              <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
+          <Grid templateColumns='repeat(1,1fr)' gap={9} >
+            {(tags.length !== 0) &&
+              <GridItem backgroundColor='gray.700' p={5} borderRadius='10'>
                 <Heading size='md' mb={3} textAlign='center'>Input AWBs</Heading>
-                <Grid templateColumns='repeat(4, 1fr)' gap={1}  >
+                <Grid templateColumns='repeat(7, 1fr)' gap={1}  >
                   {tags.map((tag, index) => (
                     <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="teal">
                       <TagLabel>{tag}</TagLabel>
@@ -155,42 +148,61 @@ const PDFtotifPage = () => {
                     </Tag>
                   ))}
                 </Grid>
+                <Select placeholder='Select Type' mt={5}>
+                  <option value='option1'>1. Commercial Invoice</option>
+                  <option value='option2'>2. CI & Label</option>
+                  <option value='option3'>3. Clevy Label</option>
+                  <option value='option4'>4. Orange Label</option>
+                </Select>
+                <Flex flexDir='row' justify='center' gap={2} mt={5} >
+                  <Button onClick={handleResetAll}>Reset All</Button>
+                  {tags.length === 0 && successfulAWBs.length === 0 && failedAWBs.length === 0 ?
+                    (<Tooltip label='Please enter one or more AWB'>
+                      <Button colorScheme='teal' isDisabled={true}><FaBan color='red' /></Button>
+                    </Tooltip>) :
+                    (<Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>{loading ? <Spinner size='sm' color='white' /> : 'Convert'}</Button>)}
+                </Flex>
               </GridItem>
-            }{(successfulAWBs.length>0 || failedAWBs.length>0) &&<GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
-            {successfulAWBs.length > 0 && (
-              <GridItem>
-                <Heading size='md' mb={3} textAlign='center'>Successfully converted</Heading>
-                <Grid templateColumns='repeat(4, 1fr)' gap={1}>
-                  {successfulAWBs.map((awb, index) => (
-                    <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="green">
-                      <TagLabel>{awb}</TagLabel>
-                    </Tag>
-                  ))}
-                </Grid>
-              </GridItem>
-            )}{failedAWBs.length > 0 && (
-              <GridItem>
-                <Heading size='md' mb={3} textAlign='center'>Conversion Failed</Heading>
-                <Grid templateColumns='repeat(4, 1fr)' gap={1}>
-                  {failedAWBs.map((awb, index) => (
-                    <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
-                      <TagLabel>{awb}</TagLabel>
-                    </Tag>
-                  ))}
-                </Grid>
-              </GridItem>
-            )}
+            }
+          </Grid>
+        </Flex>
+        <Flex>
+          <Grid templateColumns='repeat(1,1fr)' gap={9}>
+            {(successfulAWBs.length > 0 || failedAWBs.length > 0) && <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
+              {successfulAWBs.length > 0 && (
+                <GridItem>
+                  <Heading size='md' mb={3} textAlign='center'>Successfully converted</Heading>
+                  <Grid templateColumns='repeat(7, 1fr)' gap={1}>
+                    {successfulAWBs.map((awb, index) => (
+                      <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="green">
+                        <TagLabel>{awb}</TagLabel>
+                      </Tag>
+                    ))}
+                  </Grid>
+                </GridItem>
+              )}{failedAWBs.length > 0 && (
+                <GridItem>
+                  <Heading size='md' mb={3} textAlign='center'>Conversion Failed</Heading>
+                  <Grid templateColumns='repeat(7, 1fr)' gap={1}>
+                    {failedAWBs.map((awb, index) => (
+                      <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
+                        <TagLabel>{awb}</TagLabel>
+                      </Tag>
+                    ))}
+                  </Grid>
+                </GridItem>
+              )}
             </GridItem>}
           </Grid>
         </Flex>
-        {/* Reset button */}
+        {/* Reset button
         {successfulAWBs.length > 0 || failedAWBs.length > 0 ? (
-          <Button mt={4} colorScheme="teal" onClick={() => {setSuccessfulAWBs([]); setFailedAWBs([]); setTags([]);}}>
+          <Button mt={4} colorScheme="teal" onClick={() => { setSuccessfulAWBs([]); setFailedAWBs([]); setTags([]); }}>
             Convert New
           </Button>
-        ) : null}
+        ) : null} */}
       </Flex>
-    </Flex>
+    </Flex >
   );
 };
 export default PDFtotifPage;
