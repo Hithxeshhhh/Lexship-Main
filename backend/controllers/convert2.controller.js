@@ -1,6 +1,4 @@
-//Using pdfTron
 
-const { PassThrough } = require('stream');
 const archiver = require('archiver');
 const { PDFNet } = require('@pdftron/pdfnet-node');
 const fs = require('fs');
@@ -8,9 +6,7 @@ const path = require('path');
 const im = require('imagemagick');
 require('dotenv').config();
 
-// Initialize PDFNet
 PDFNet.initialize(process.env.API_LICENSE_KEY);
-// PDFNet.runWithCleanup(()=>{this.convertController2}, process.env.API_LICENSE_KEY).then(()=> PDFNet.shutdown());
 
 async function compresstozip(folderPath) {
     return new Promise((resolve, reject) => {
@@ -96,6 +92,7 @@ async function combineTiffs() {
 
 exports.convertController2 = async (req, res) => {
     try {
+        const { successfulDownloads, failedDownloads } = req;
         const inputFolder = path.join(__dirname, '../uploads/');
         const outputFolder = path.join(__dirname, '../convertedTif/');
 
@@ -119,7 +116,7 @@ exports.convertController2 = async (req, res) => {
             for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
                 const page = await doc.getPage(pageNum);
                 await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
-                
+
             }
             doc.destroy();
         }
@@ -128,7 +125,7 @@ exports.convertController2 = async (req, res) => {
         //   await remFiles();
         const zipFilePath = await compresstozip(outputFolder); // Generate the ZIP file
         const zipFile = fs.readFileSync(zipFilePath);
-        
+
         fs.unlinkSync(zipFilePath);
         pdfFiles.forEach(pdfFile => {
             const pdfFilePath = path.join(inputFolder, pdfFile);
@@ -139,11 +136,12 @@ exports.convertController2 = async (req, res) => {
             const tifFilePath = path.join(outputFolder, tifFile);
             fs.unlinkSync(tifFilePath);
         });
-        
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', 'attachment; filename=converted_files.zip');
+        res.setHeader('successful',JSON.stringify(successfulDownloads))
+        res.setHeader('failed',JSON.stringify(failedDownloads))
         res.status(200).send(zipFile);
-        
+
     } catch (error) {
         console.error('Error converting PDFs to TIFF:', error);
         res.status(500).send('Error converting PDFs to TIFF.');
