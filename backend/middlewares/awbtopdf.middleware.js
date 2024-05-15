@@ -32,9 +32,13 @@ async function awbtopdfMiddleware(req, res, next) {
                 console.error(`Failed to fetch PDF content for AWB ${awb}: ${response.status} ${response.statusText}`);
                 continue;
             }
-            if (conversionType === 'Clevy Label') {
+            if (conversionType === 'Clevy Label' ) {
                 const pdfContent = await response.text();
-                fs.writeFileSync(outputPdfPath, pdfContent, 'base64');
+                fs.writeFileSync(outputPdfPath, pdfContent,'base64');
+            }
+            else if(conversionType==='CI & Label' && awb.startsWith('WC')){
+                const pdfContent = await response.text();
+                fs.writeFileSync(outputPdfPath, pdfContent,'base64');
             }
             else{
                 const pdfContent = await response.buffer();
