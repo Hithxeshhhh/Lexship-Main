@@ -31,7 +31,10 @@ app.listen(port, ()=>{console.log(`App running on ${port}`)})
 
 // app.use(express.json())
 // app.use(express.static('public'));
-// app.use(cors())
+// const corsOptions={
+//     exposedHeaders:['successful','failed']
+// }
+// app.use(cors(corsOptions))
 // app.use("/api/v1",router)
 
 // https.createServer(options, app).listen(5000);

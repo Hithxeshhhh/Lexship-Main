@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, AlertIcon, Button, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, Center, Divider, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from '@chakra-ui/react';
 import SideNav from '../components/SideNav';
 import { FaArrowRight, FaBan } from 'react-icons/fa';
 import axios from 'axios'
@@ -11,6 +11,10 @@ const PDFtotifPage = () => {
   const [success, setSuccess] = useState(false);
   const [successfulAWBs, setSuccessfulAWBs] = useState([]);
   const [failedAWBs, setFailedAWBs] = useState([]);
+  const [conversionType, setConversionType] = useState('');
+  const handleConversionTypeChange = (e) => {
+    setConversionType(e.target.value);
+  };
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
     setError('');
@@ -21,7 +25,6 @@ const PDFtotifPage = () => {
       const newTags = trimmedInput.split(',').map(tag => tag.trim());
       const uniqueNewTags = newTags.filter(tag => !tags.includes(tag));
       const invalidTags = uniqueNewTags.filter(tag => !/^[a-zA-Z0-9]+$/.test(tag));
-
       if (invalidTags.length === 0) {
         const duplicates = newTags.filter(tag => tags.includes(tag));
         if (duplicates.length === 0) {
@@ -62,45 +65,53 @@ const PDFtotifPage = () => {
     setTags(updatedTags);
   };
   const handleResetAll = () => {
+    if (successfulAWBs.length) {
+      setSuccessfulAWBs([]);
+    }
+    if (failedAWBs.length) {
+      setFailedAWBs([]);
+    }
     setTags([]);
     setError('');
   };
   const handleSubmit = async () => {
+    if (!conversionType) {
+      setError('Please select a conversion type.');
+      return;
+    }
     try {
       setLoading(true)
-      const res = await axios.post(`http://localhost:5000/api/v1/upload-convert`,{ awbNumbers: tags }, { responseType: 'arraybuffer' });
+      const res = await axios.post(`http://localhost:5000/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
       const successful = res.headers['successful'] || [];
       const failed = res.headers['failed'] || [];
       setSuccessfulAWBs(JSON.parse(successful).map(item => item.replace(/["']/g, "")));
       setFailedAWBs(JSON.parse(failed).map(item => item.replace(/["']/g, "")));
-      if (!res.data) {
-        console.error('Empty response received.');
-        return;
-      }
-      const blob = new Blob([res.data], { type: 'application/zip' });
-      const url = window.URL.createObjectURL(blob);
-      const date = new Date();
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
-      const filename = `${timestamp}.zip`;
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      window.URL.revokeObjectURL(url);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 6000);
-    } catch (err) {
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
+      console.log(res.data)
+      if (res.data.byteLength !== 0) {
+        const blob = new Blob([res.data], { type: 'application/zip' });
+        const url = window.URL.createObjectURL(blob);
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
+        const filename = `${timestamp}.zip`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(url);
+        setSuccess(true);
+        setError('')
+        setTimeout(() => setSuccess(false), 6000);
+      } else { setError('Type mismatch') }
     }
+    catch (err) { console.error('Error:', err); }
+    finally { setLoading(false); }
   };
   return (
     <Flex flexDir='row'>
@@ -113,7 +124,7 @@ const PDFtotifPage = () => {
           </Alert>
         )}
         <Heading size='lg' color='gray.400'>PDF to TIF</Heading>
-        <Flex flexWrap="wrap" w='80vh' mt='2vh'>
+        <Flex flexWrap="wrap" w='70vh' mt='2vh' >
           <Heading fontSize='18px' fontWeight='500' color='gray.300' mr={3}>AWB numbers:</Heading>
           <InputGroup size='md' mt={2}
             mb={2}>
@@ -133,14 +144,13 @@ const PDFtotifPage = () => {
             </InputRightElement>
           </InputGroup>
           {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
-
         </Flex>
-        <Flex w='100%' flexDir='col' p={3} justifyContent='space-around' alignItems='center' mt={5}>
-          <Grid templateColumns='repeat(1,1fr)' gap={9} >
+        <Flex w='100%' flexDir='col' p={3} justifyContent='center' alignItems='center' mt={5}>
+          <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%' >
             {(tags.length !== 0) &&
               <GridItem backgroundColor='gray.700' p={5} borderRadius='10'>
-                <Heading size='md' mb={3} textAlign='center'>Input AWBs</Heading>
-                <Grid templateColumns='repeat(7, 1fr)' gap={1}  >
+                <Heading size='md' mb={3} textAlign='center'>Input AWBs : {tags.length}</Heading>
+                <Grid templateColumns='repeat(6, 1fr)' gap={1}  >
                   {tags.map((tag, index) => (
                     <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="teal">
                       <TagLabel>{tag}</TagLabel>
@@ -148,12 +158,15 @@ const PDFtotifPage = () => {
                     </Tag>
                   ))}
                 </Grid>
-                <Select placeholder='Select Type' mt={5}>
-                  <option value='option1'>1. Commercial Invoice</option>
-                  <option value='option2'>2. CI & Label</option>
-                  <option value='option3'>3. Clevy Label</option>
-                  <option value='option4'>4. Orange Label</option>
-                </Select>
+                <Divider />
+                <Center>
+                  <Select placeholder='Select Type' mt={5} w='40%' onChange={handleConversionTypeChange}>
+                    <option value='Commercial Invoice'>Commercial Invoice</option>
+                    <option value='CI & Label'>CI & Label</option>
+                    <option value='Clevy Label'>Clevy Label</option>
+                    <option value='Orange Label'>Orange Label</option>
+                  </Select>
+                </Center>
                 <Flex flexDir='row' justify='center' gap={2} mt={5} >
                   <Button onClick={handleResetAll}>Reset All</Button>
                   {tags.length === 0 && successfulAWBs.length === 0 && failedAWBs.length === 0 ?
@@ -166,13 +179,13 @@ const PDFtotifPage = () => {
             }
           </Grid>
         </Flex>
-        <Flex>
-          <Grid templateColumns='repeat(1,1fr)' gap={9}>
+        <Flex w='100%' p={3} flexDir='col' justifyContent='space-around' alignItems='center' mt={5}>
+          <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%'>
             {(successfulAWBs.length > 0 || failedAWBs.length > 0) && <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
               {successfulAWBs.length > 0 && (
                 <GridItem>
-                  <Heading size='md' mb={3} textAlign='center'>Successfully converted</Heading>
-                  <Grid templateColumns='repeat(7, 1fr)' gap={1}>
+                  <Heading size='md' mb={5} textAlign='center'>Successfully converted : {successfulAWBs.length}</Heading>
+                  <Grid templateColumns='repeat(6, 1fr)' gap={1}>
                     {successfulAWBs.map((awb, index) => (
                       <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="green">
                         <TagLabel>{awb}</TagLabel>
@@ -182,8 +195,8 @@ const PDFtotifPage = () => {
                 </GridItem>
               )}{failedAWBs.length > 0 && (
                 <GridItem>
-                  <Heading size='md' mb={3} textAlign='center'>Conversion Failed</Heading>
-                  <Grid templateColumns='repeat(7, 1fr)' gap={1}>
+                  <Heading size='md' mt={10} mb={5} textAlign='center'>Conversion Failed : {failedAWBs.length}</Heading>
+                  <Grid templateColumns='repeat(6, 1fr)' gap={1}>
                     {failedAWBs.map((awb, index) => (
                       <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
                         <TagLabel>{awb}</TagLabel>
@@ -195,12 +208,6 @@ const PDFtotifPage = () => {
             </GridItem>}
           </Grid>
         </Flex>
-        {/* Reset button
-        {successfulAWBs.length > 0 || failedAWBs.length > 0 ? (
-          <Button mt={4} colorScheme="teal" onClick={() => { setSuccessfulAWBs([]); setFailedAWBs([]); setTags([]); }}>
-            Convert New
-          </Button>
-        ) : null} */}
       </Flex>
     </Flex >
   );

@@ -94,7 +94,6 @@ exports.convertController2 = async (req, res) => {
     try {
         const { successfulDownloads, failedDownloads } = req;
         if(JSON.stringify(successfulDownloads).length!==2){
-    
         const inputFolder = path.join(__dirname, '../uploads/');
         const outputFolder = path.join(__dirname, '../convertedTif/');
 
@@ -109,11 +108,9 @@ exports.convertController2 = async (req, res) => {
             if (!fs.existsSync(outputFolderPath)) {
                 fs.mkdirSync(outputFolderPath);
             }
-
             const doc = await PDFNet.PDFDoc.createFromFilePath(pdfFilePath);
-
             const pdfDraw = await PDFNet.PDFDraw.create();
-            pdfDraw.setDPI(400);
+            pdfDraw.setDPI(200);
             const pageCount = await doc.getPageCount();
             for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
                 const page = await doc.getPage(pageNum);
@@ -144,7 +141,9 @@ exports.convertController2 = async (req, res) => {
         res.setHeader('failed',JSON.stringify(failedDownloads))
         res.status(200).send(zipFile);
     }else{
-        res.status(400).json({message:'Enter valid AWBs'})
+        res.setHeader('successful',JSON.stringify(successfulDownloads))
+        res.setHeader('failed',JSON.stringify(failedDownloads))
+        res.status(200).send('')
     }
 
     } catch (error) {

@@ -5,7 +5,6 @@ import {
     Link,
     Menu,
     MenuButton,
-    MenuList
 } from '@chakra-ui/react'
 
 export default function NavItem({ icon, title, link,active, navSize }) {
@@ -35,14 +34,6 @@ export default function NavItem({ icon, title, link,active, navSize }) {
                         </Flex>
                     </MenuButton>
                 </Link>
-                <MenuList
-                    py={0}
-                    border="none"
-                    w={200}
-                    h={200}
-                    ml={5}
-                >
-                </MenuList>
             </Menu>
         </Flex>
     )

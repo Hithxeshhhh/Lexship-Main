@@ -46,7 +46,7 @@ export default function Sidebar() {
                 as="nav"
             >
               <Flex flexDir='row' justify={navSize==='small'?'center':'space-between'} transition='all ease 0.4s' w='100%' align='center ' mt='2'>
-              <Image src={logo} alt='Lexshipt' height='4vh' display={navSize == "small" ? "none" : "flex"} transition='all ease 0.4s'/>
+              <Image src={logo} alt='Lexship' height='4vh' display={navSize == "small" ? "none" : "flex"} transition='all ease 0.4s'/>
                 <IconButton
                     background="none"
                     _hover={{ background: 'none' }}
@@ -76,7 +76,6 @@ export default function Sidebar() {
                 <NavItem navSize={navSize} icon={FiBriefcase} title="Reports" />
                 <NavItem navSize={navSize} icon={FiSettings} title="Settings" />
             </Flex>
-
             <Flex
                 p="5%"
                 flexDir="column"
