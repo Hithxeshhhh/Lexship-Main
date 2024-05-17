@@ -1,0 +1,33 @@
+{
+    "statusData": [
+      { "code": 0, "value": "Shipment Created" },
+      { "code": 1, "value": "Pickup Scheduled" },
+      { "code": 2, "value": "Item Picked up" },
+      { "code": 3, "value": "In Transit to LEX Hub" },
+      { "code": 4, "value": "Received at LEX India Hub" },
+      { "code": 5, "value": "LEX India Hub (Operations)" },
+      { "code": 6, "value": "Customs Clearance in Progress" },
+      { "code": 7, "value": "Sent for Customs Clearance" },
+      { "code": 8, "value": "Customs Cleared" },
+      { "code": 9, "value": "Uplifted" },
+      { "code": 10, "value": "Arrived at International transit Hub" },
+      { "code": 11, "value": "Held by destination customs" },
+      { "code": 12, "value": "Item forwarded to the destination country" },
+      { "code": 13, "value": "Item arrived to destination country" },
+      { "code": 14, "value": "Out for delivery" },
+      { "code": 15, "value": "Delivered" },
+      { "code": 16, "value": "Item arrived at collection point for pickup by consignee"},
+      { "code": 19, "value": "Delivery attempt" },
+      { "code": 20, "value": "Unsuccessful delivery attempt" },
+      { "code": 141, "value": "Ready for collection" },
+      { "code": 405, "value": "Arrived at destination local post office" },
+      { "code": 100, "value": "Held at Customs" },
+      { "code": 150, "value": "Returned To Origin" },
+      { "code": 200, "value": "Held at LEX Hub (Prohibited Item)" },
+      { "code": 202, "value": "Item Picked up" },
+      { "code": 203, "value": "Pickup Cancelled" },
+      { "code": 204, "value": "Wrong RTS" },
+      { "code": 404, "value": "AWB assignment in process" },
+      { "code": 500, "value": "Shipment Cancelled" }
+    ]
+  }
