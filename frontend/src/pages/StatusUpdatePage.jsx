@@ -3,7 +3,7 @@ import { Flex, Heading, Input, Button, InputGroup, InputRightElement, Text, Sele
 import SideNav from '../components/SideNav';
 import { FaArrowRight } from 'react-icons/fa';
 import { statusData } from '../utils/data.json'
-// import {instance} from '../utils/AxiosInstance'
+import instance from '../utils/AxiosInstance'
 const StatusUpdatePage = () => {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -13,6 +13,10 @@ const StatusUpdatePage = () => {
   const [time, setTime] = useState('');
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false);
+  const handleResetAll =()=>{
+    setTags([]);
+    setError('')
+  }
   const handleStatus = (e) => {
     sethandleStatus(e.target.value);
   };
@@ -83,12 +87,12 @@ const StatusUpdatePage = () => {
       setLoading(true);
       const data = statusData.find(item => item.value === status);
       console.log(data.code, date, time)
-      // const res = await instance.post(
-      //   `https://lexlive2.lexship.biz/api/awb/status/update?statusCode=${code}&CreatedDate=${date}&CreatedTime=${time}`,
-      //   {
-      //     AWBs: tags,
-      //   }
-      // );
+      const res = await instance.post(
+        `https://lexlive2.lexship.biz/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`,
+        {
+          AWBs: tags,
+        }
+      );
       setSuccess(true);
       setError('');
       setTimeout(() => setSuccess(false), 6000)
@@ -170,7 +174,8 @@ const StatusUpdatePage = () => {
                     onChange={(e) => setTime(e.target.value)}
                   />
                 </Flex>
-                <Flex alignItems={'center'} justifyContent={'center'} mt={10}>
+                <Flex alignItems={'center'} justifyContent={'center'} mt={10} gap={5}>
+                <Button onClick={handleResetAll}>Reset All</Button>
                   {(<Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>{loading ? <Spinner size='sm' color='white' /> : 'Submit Status'}</Button>)}
                 </Flex>
               </GridItem>
