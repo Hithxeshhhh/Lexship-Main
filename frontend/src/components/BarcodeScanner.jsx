@@ -7,7 +7,7 @@ const BarcodeScanner = ({ onClose, tags, setTags }) => {
     onDecodeResult(result) {
       if (!tags.includes(result.getText())) {
         setTags([...tags, result.getText()]); 
-        console.log(tags);
+        // console.log(tags);
       }
     },
   });

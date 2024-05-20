@@ -1,4 +1,4 @@
-import { useState} from 'react';
+import { useState } from 'react';
 import {
   Flex, Heading, Input, Button, InputGroup, InputRightElement, Text, Grid, GridItem, Tag, TagLabel, TagCloseButton, Divider, Spinner, Alert, AlertIcon, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
   Select
@@ -17,11 +17,14 @@ const Relabel = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-
+  const [successfulAWBs, setSuccessfulAWBs] = useState([]);
+  const [failedAWBs, setFailedAWBs] = useState([]);
 
   const handleResetAll = () => {
     setTags([]);
     setError('');
+    setSuccessfulAWBs([]);
+    setFailedAWBs([]);
   };
 
   const handleProvider = (e) => {
@@ -85,19 +88,18 @@ const Relabel = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      console.log(provider)
       const selectedProvider = labelData.find(data => data.name === provider);
-      console.log((selectedProvider))
       if (selectedProvider) {
-        console.log(selectedProvider.api)
-        // console.log(tags)
-        const res = await instance.post(selectedProvider.api, {
-          AWB: tags
-        });
-        console.log(res.data)
-        if(res.data.Success.length===tags.length)
-            setSuccess(true);
-        setError('');
+        const res = await instance.post(selectedProvider.api, { AWB: tags });
+        const { Success, Fail } = res.data;
+        setSuccessfulAWBs(Success.map(item => item.FROM_AWB));
+        setFailedAWBs(Fail.map(item => item.FROM_AWB));
+
+        if (Success.length === tags.length) {
+          setSuccess(true);
+        } else {
+          setError(`${Fail.length} Invalid or already booked AWBs`);
+        }
         setTimeout(() => setSuccess(false), 6000);
       } else {
         setError('Invalid provider selected.');
@@ -116,7 +118,7 @@ const Relabel = () => {
         {success && (
           <Alert status="success" w="50vh" mt={2}>
             <AlertIcon />
-            Status updated successfully.
+            {successfulAWBs.length} AWBs relabeled successfully
           </Alert>
         )}
         <Heading size='lg' textAlign='center' color='gray.400'>Relabel</Heading>
@@ -142,20 +144,21 @@ const Relabel = () => {
                   <FaArrowRight />
                 </Button>
               </InputRightElement> :
-              <InputRightElement > <Button onClick={handleEnter} >
-                <FaArrowRight />
-              </Button>
+              <InputRightElement> 
+                <Button onClick={handleEnter}>
+                  <FaArrowRight />
+                </Button>
               </InputRightElement>
             }
           </InputGroup>
           {error && <Text color="red.500" fontSize="sm">{error}</Text>}
         </Flex>
         <Flex w='100%' flexDir='col' p={3} justifyContent='center' alignItems='center' mt={5}>
-          <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%' >
+          <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%'>
             {(tags.length !== 0) &&
               <GridItem backgroundColor='gray.700' p={5} borderRadius='10'>
                 <Heading size='md' mb={3} textAlign='center'>Input AWBs : {tags.length}</Heading>
-                <Grid templateColumns='repeat(6, 1fr)' gap={1}  >
+                <Grid templateColumns='repeat(6, 1fr)' gap={1}>
                   {tags.map((tag, index) => (
                     <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="teal">
                       <TagLabel>{tag}</TagLabel>
@@ -164,7 +167,7 @@ const Relabel = () => {
                   ))}
                 </Grid>
                 <Divider />
-                <Flex flexDir='row' mt={5} gap={5} alignItems={'center'} >
+                <Flex flexDir='row' mt={5} gap={5} alignItems={'center'}>
                   <Heading size='sm' fontWeight={400} whiteSpace={'nowrap'}>Choose Provider:</Heading>
                   <Select placeholder='Select Type' onChange={handleProvider}>
                     {labelData.map((data, index) => (
@@ -172,7 +175,6 @@ const Relabel = () => {
                     ))}
                   </Select>
                 </Flex>
-
                 <Flex alignItems={'center'} justifyContent={'center'} mt={10} gap={5}>
                   <Button onClick={handleResetAll}>Reset All</Button>
                   <Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>
@@ -183,6 +185,36 @@ const Relabel = () => {
             }
           </Grid>
         </Flex>
+        <Flex w='100%' p={3} flexDir='col' justifyContent='space-around' alignItems='center' mt={5} >
+          <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%'>
+          {(successfulAWBs.length > 0 || failedAWBs.length > 0) && <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
+            {successfulAWBs.length > 0 && (
+              <GridItem >
+                <Heading size='md' mb={5} textAlign='center'>Successful : {successfulAWBs.length}</Heading>
+                <Grid templateColumns='repeat(6, 1fr)' gap={1}>
+                  {successfulAWBs.map((awb, index) => (
+                    <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="green">
+                      <TagLabel>{awb}</TagLabel>
+                    </Tag>
+                  ))}
+                </Grid>
+              </GridItem>
+            )}
+            {failedAWBs.length > 0 && (
+              <GridItem>
+                <Heading size='md'  mb={5} textAlign='center'>Failed : {failedAWBs.length}</Heading>
+                <Grid templateColumns='repeat(6, 1fr)' gap={1}>
+                  {failedAWBs.map((awb, index) => (
+                    <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
+                      <TagLabel>{awb}</TagLabel>
+                    </Tag>
+                  ))}
+                </Grid>
+              </GridItem>
+            )}
+            </GridItem>}
+          </Grid>
+        </Flex>
 
         <Modal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)}>
           <ModalOverlay />
@@ -190,14 +222,11 @@ const Relabel = () => {
             <ModalHeader>Scan Barcode</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <BarcodeScanner tags={tags}
-                setTags={setTags}
-                onClose={() => setIsScannerOpen(false)} />
+              <BarcodeScanner tags={tags} setTags={setTags} onClose={() => setIsScannerOpen(false)} />
               {tags.length > 0 && (
-
                 <GridItem backgroundColor='gray.700' p={5} borderRadius='10'>
                   <Heading size='md' mb={3} textAlign='center'>Input AWBs : {tags.length}</Heading>
-                  <Grid templateColumns='repeat(2, 1fr)' gap={1}  >
+                  <Grid templateColumns='repeat(2, 1fr)' gap={1}>
                     {tags.map((tag, index) => (
                       <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="teal">
                         <TagLabel>{tag}</TagLabel>
