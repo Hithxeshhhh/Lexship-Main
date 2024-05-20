@@ -125,7 +125,8 @@ const StatusUpdatePage = () => {
               onKeyDown={handleInputKeyDown}
               variant={error ? "filled" : "outline"}
               size="md"
-              borderColor={error ? "red.300" : "gray.200"}
+              border={'1px'}
+              borderColor={error ? "red.300" : "gray.600"}
             />
             <InputRightElement>
               <Button onClick={handleEnter}>

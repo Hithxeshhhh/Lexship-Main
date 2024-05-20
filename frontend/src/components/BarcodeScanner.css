@@ -1,0 +1,30 @@
+.barcode-scanner-container {
+    position: relative;
+  }
+  
+  .barcode-scanner-video {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .barcode-scanner-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px; /* Height of the scanning line */
+    background-color: red; /* Color of the scanning line */
+    animation: scanningAnimation 2s linear infinite alternate; /* Adjust animation duration and timing function */
+  }
+  
+  @keyframes scanningAnimation {
+    0% {
+        top: 0;
+      transform: translateY(0);
+    }
+    100% {
+        top: 100%;
+      transform: translateY(-100%);
+    }
+  }
+  
