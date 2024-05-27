@@ -115,21 +115,20 @@ exports.convertController2 = async (req, res) => {
             for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
                 const page = await doc.getPage(pageNum);
                 await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
-
             }
-            doc.destroy();
+             doc.destroy();
         }
         await combineTiffs();
-        //   await new Promise(resolve => setTimeout(resolve, 10000));
-        //   await remFiles();
         const zipFilePath = await compresstozip(outputFolder); // Generate the ZIP file
         const zipFile = fs.readFileSync(zipFilePath);
-
+        
         fs.unlinkSync(zipFilePath);
+        
         pdfFiles.forEach(pdfFile => {
             const pdfFilePath = path.join(inputFolder, pdfFile);
             fs.unlinkSync(pdfFilePath);
         });
+
         const tifFiles = fs.readdirSync(outputFolder).filter(file => file.endsWith('.tif'));
         tifFiles.forEach(tifFile => {
             const tifFilePath = path.join(outputFolder, tifFile);
@@ -145,11 +144,11 @@ exports.convertController2 = async (req, res) => {
         res.setHeader('failed',JSON.stringify(failedDownloads))
         res.status(200).send('')
     }
-
-    } catch (error) {
-        console.error('Error converting PDFs to TIFF:', error);
-        res.status(500).send('Error converting PDFs to TIFF.');
-    }
+    
+} catch (error) {
+    console.error('Error converting PDFs to TIFF:', error);
+    res.status(500).send('Error converting PDFs to TIFF.');
+}
 };
-PDFNet.shutdown();
 
+PDFNet.shutdown(); 
