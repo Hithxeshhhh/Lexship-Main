@@ -2,10 +2,14 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 
 async function awbtopdfMiddleware(req, res, next) {
+    const io = req.app.get('socketio'); // Get socket.io instance
+    let completedTasks = 0;
     try {
         const successfulDownloads = [];
         const failedDownloads = [];
         const { awbNumbers, conversionType } = req.body;
+        const totalTasks = awbNumbers.length*2;
+    
         console.log(conversionType);
         for (const awb of awbNumbers) {
             let apiUrl;
@@ -38,6 +42,8 @@ async function awbtopdfMiddleware(req, res, next) {
             fs.writeFileSync(outputPdfPath, pdfContent);
             successfulDownloads.push(awb);
             console.log(`PDF for AWB ${awb} downloaded and saved successfully.`);
+            completedTasks++;
+            io.emit('progress', { completed: completedTasks, total: totalTasks });
         }
         req.successfulDownloads = successfulDownloads;
         req.failedDownloads = failedDownloads;

@@ -12,7 +12,7 @@ async function compresstozip(folderPath) {
     return new Promise((resolve, reject) => {
         const output = fs.createWriteStream('compressed.zip');
         const archive = archiver('zip', {
-            zlib: { level: 9 } // Set compression level to maximum
+            zlib: { level: 9 }
         });
 
         output.on('close', function () {
@@ -91,13 +91,16 @@ async function combineTiffs() {
 }
 
 exports.convertController2 = async (req, res) => {
+    const io = req.app.get('socketio');
     try {
         const { successfulDownloads, failedDownloads } = req;
         if(JSON.stringify(successfulDownloads).length!==2){
-        const inputFolder = path.join(__dirname, '../uploads/');
-        const outputFolder = path.join(__dirname, '../convertedTif/');
-
-        const pdfFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith('.pdf'));
+            const inputFolder = path.join(__dirname, '../uploads/');
+            const outputFolder = path.join(__dirname, '../convertedTif/');
+            
+            const pdfFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith('.pdf'));
+            let completedTasks = pdfFiles.length;
+        const totalTasks = pdfFiles.length*2; // Number of steps in the process
 
         for (const pdfFile of pdfFiles) {
             // Convert code
@@ -117,6 +120,8 @@ exports.convertController2 = async (req, res) => {
                 await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
             }
              doc.destroy();
+             completedTasks++;
+             io.emit('progress', { completed: completedTasks, total: totalTasks });
         }
         await combineTiffs();
         const zipFilePath = await compresstozip(outputFolder); // Generate the ZIP file
