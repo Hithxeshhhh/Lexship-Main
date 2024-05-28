@@ -6,7 +6,10 @@ const path = require('path');
 exports.createLeadController = async (req, res) => {
   try {
     const customerId = req.params.Customer_id;
-    const customerDetailsResponse = await axios.get(`https://lexlive2.lexship.biz/api/customer/details?Customer_Id=${customerId}`, {
+    if (!customerId) {
+      return res.status(400).json({ error: 'Customer_id is required' });
+    }
+    const customerDetailsResponse = await axios.get(`${process.env.CUSTOMER_DETAIL_API}?Customer_Id=${customerId}`, {
       headers: {
         'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
         'Content-Type': 'application/json'
@@ -26,7 +29,7 @@ exports.createLeadController = async (req, res) => {
         }]
     }
     // Send data to Zoho CRM API
-    const zohoResponse = await axios.post('https://www.zohoapis.in/crm/v6/Leads', leadData, {
+    const zohoResponse = await axios.post(process.env.ZOHO_LEAD_API, leadData, {
       headers: {
         'Authorization': `Zoho-oauthtoken ${process.env.ZOHO_OAUTH_TOKEN}`,
         'Content-Type': 'application/json',
