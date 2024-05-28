@@ -5,8 +5,26 @@ const path = require('path');
 
 exports.createLeadController = async (req, res) => {
   try {
-    const leadData = req.body;
-
+    const customerId = req.params.Customer_id;
+    const customerDetailsResponse = await axios.get(`https://lexlive2.lexship.biz/api/customer/details?Customer_Id=${customerId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const customerDetails = customerDetailsResponse.data[0]
+    const leadData = {
+      data: [
+        {
+          Cust_ID: customerDetails.id,
+          First_Name: customerDetails.name,
+          Company: customerDetails.company_name,
+          Last_Name: customerDetails.last_name,
+          Email: customerDetails.email,
+          Phone: customerDetails.mobile,
+          Type_of_business: customerDetails.type_of_business
+        }]
+    }
     // Send data to Zoho CRM API
     const zohoResponse = await axios.post('https://www.zohoapis.in/crm/v6/Leads', leadData, {
       headers: {
@@ -21,8 +39,8 @@ exports.createLeadController = async (req, res) => {
       const leadId = zohoResponseData.data[0].details.id;
 
       // Define the path to the file
-      const filePath = path.join(__dirname, '..', 'leadDetails.txt');
-
+      const filePath = path.join(__dirname, '../leadsInfo', 'leadDetails.txt');
+      console.log(filePath)
       // Append the lead ID to the file
       fs.appendFileSync(filePath, `${leadId}\n`, 'utf8');
     }

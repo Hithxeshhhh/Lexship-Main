@@ -14,5 +14,5 @@ router.get('/test',(req,res)=>{
 router.post('/upload', uploadMiddleware, uploadController);
 router.post('/convert', convertController2);
 router.post('/upload-convert',awbtopdfMiddleware,convertController2);
-router.post('/create-lead',createLeadController)
+router.post('/create-lead/:Customer_id',createLeadController)
 module.exports = router;
