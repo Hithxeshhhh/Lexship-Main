@@ -7,6 +7,7 @@ const { combinedController } = require('../controllers/combined.controller');
 const awbtopdfMiddleware = require('../middlewares/awbtopdf.middleware');
 const { createLeadController } = require('../controllers/createLead.controller');
 const { createProspectController } = require('../controllers/createProspect.controller');
+const { getLeadController } = require('../controllers/getLead.controller');
 const router = express.Router();
 
 router.get('/test',(req,res)=>{
@@ -17,4 +18,5 @@ router.post('/convert', convertController2);
 router.post('/upload-convert',awbtopdfMiddleware,convertController2);
 router.post('/create-lead/:Customer_id',createLeadController)
 router.post('/create-prospect/:Customer_id/:Zoho_id',createProspectController)
+router.get('/get-lead/:Zoho_id',getLeadController)
 module.exports = router;
