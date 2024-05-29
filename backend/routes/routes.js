@@ -11,14 +11,19 @@ const { getLeadController } = require('../controllers/getLead.controller');
 const { updateLeadController } = require('../controllers/updateLead.controller');
 const router = express.Router();
 
+//testing route
 router.get('/test',(req,res)=>{
     res.json({message:'Testing page'})
 })
+
+//module routes
 router.post('/upload', uploadMiddleware, uploadController);
 router.post('/convert', convertController2);
 router.post('/upload-convert',awbtopdfMiddleware,convertController2);
+
+//Zoho integration routes
 router.post('/create-lead/:Customer_id',createLeadController)
-router.post('/create-prospect/:Customer_id/:Zoho_id',createProspectController)
 router.get('/get-lead/:Zoho_id',getLeadController)
 router.put('/update-lead/:Zoho_id',updateLeadController)
+router.post('/create-prospect/:Customer_id/:Zoho_id',createProspectController)
 module.exports = router;

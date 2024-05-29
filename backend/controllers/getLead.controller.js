@@ -23,16 +23,19 @@ exports.getLeadController = async(req,res) =>{
         console.error('Error fetching Zoho lead:', error);
 
         if (error.response) {
+            // API responded with a status code outside the range of 2xx
             res.status(error.response.status).json({
                 error: 'Error fetching Zoho lead',
                 message: error.response.data
             });
         } else if (error.request) {
+            // Request was made but no response was received
             res.status(500).json({
                 error: 'No response received from Zoho API',
                 message: error.message
             });
         } else {
+            // Something else happened
             res.status(500).json({
                 error: 'Internal server error',
                 message: error.message
