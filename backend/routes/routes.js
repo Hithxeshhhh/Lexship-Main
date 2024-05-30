@@ -27,5 +27,5 @@ router.post('/create-lead/:Customer_id',createLeadController)
 router.get('/get-lead/:Zoho_id',getLeadController)
 router.put('/update-lead/:Zoho_id',updateLeadController)
 router.post('/create-deal/:Customer_id/',createDealController)
-router.put('/update-deal/:Zoho_id',updateDealController)
+router.put('/update-deal/:Zoho_Deal_Id',updateDealController)
 module.exports = router;
