@@ -74,15 +74,83 @@
     },
     {
       "code": 20,
-      "value": "Unsuccessful delivery attempt"
+      "value": "Destination Customs Cleared"
     },
     {
-      "code": 141,
+      "code": 21,
+      "value": "Under Process - Customs check"
+    },
+    {
+      "code": 22,
+      "value": "Under Process - Customs check"
+    },
+    {
+      "code": 23,
+      "value": "Released from customs"
+    },
+    {
+      "code": 24,
+      "value": "Item into sorting centre"
+    },
+    {
+      "code": 25,
+      "value": "Available to pickup"
+    },
+    {
+      "code": 26,
+      "value": "Refused delivery"
+    },
+    {
+      "code": 27,
       "value": "Ready for collection"
     },
     {
-      "code": 405,
+      "code": 28,
+      "value": "Unsuccessful delivery attempt"
+    },
+    {
+      "code": 29,
+      "value": "On Hold - Damaged Content"
+    },
+    {
+      "code": 30,
+      "value": "On Hold - Waiting for further action / Information"
+    },
+    {
+      "code": 31,
+      "value": "On Hold - Invalid Zip / Postal Code"
+    },
+    {
+      "code": 32,
+      "value": "On hold - Duties are due on this package"
+    },
+    {
+      "code": 33,
+      "value": "Customer Not available"
+    },
+    {
+      "code": 34,
+      "value": "Unsuccessful delivery attempt"
+    },
+    {
+      "code": 35,
+      "value": "Inject into Royal Mail"
+    },
+    {
+      "code": 36,
       "value": "Arrived at destination local post office"
+    },
+    {
+      "code": 37,
+      "value": "On Hold - Need to present documentation or additional information"
+    },
+    {
+      "code": 202,
+      "value": "Item Picked up"
+    },
+    {
+      "code": 99,
+      "value": "Over Weight On Hold"
     },
     {
       "code": 100,
@@ -93,20 +161,20 @@
       "value": "Returned To Origin"
     },
     {
-      "code": 200,
-      "value": "Held at LEX Hub (Prohibited Item)"
-    },
-    {
-      "code": 202,
-      "value": "Item Picked up"
+      "code": 204,
+      "value": "Wrong RTS"
     },
     {
       "code": 203,
       "value": "Pickup Cancelled"
     },
     {
-      "code": 204,
-      "value": "Wrong RTS"
+      "code": 201,
+      "value": "Held at LEX Hub (Prohibited Item)"
+    },
+    {
+      "code": 200,
+      "value": "Held at LEX Hub (Prohibited Item)"
     },
     {
       "code": 404,
@@ -115,6 +183,10 @@
     {
       "code": 500,
       "value": "Shipment Cancelled"
+    },
+    {
+      "code": 510,
+      "value": "AWB used for testing"
     }
   ],
   "labelData": [
