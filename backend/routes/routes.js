@@ -10,6 +10,7 @@ const { createDealController } = require('../controllers/createDeal.controller')
 const { getLeadController } = require('../controllers/getLead.controller');
 const { updateLeadController } = require('../controllers/updateLead.controller');
 const { updateDealController } = require('../controllers/updateDeal.controller');
+const { getDealController } = require('../controllers/getDeal.controller');
 const router = express.Router();
 
 //testing route
@@ -28,4 +29,5 @@ router.get('/get-lead/:Zoho_id',getLeadController)
 router.put('/update-lead/:Zoho_id',updateLeadController)
 router.post('/create-deal/:Customer_id/',createDealController)
 router.put('/update-deal/:Zoho_Deal_Id',updateDealController)
+router.get('/get-deal/:Zoho_Deal_Id',getDealController)
 module.exports = router;
