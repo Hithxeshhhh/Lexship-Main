@@ -6,9 +6,10 @@ const { convertController2 } = require('../controllers/convert2.controller');
 const { combinedController } = require('../controllers/combined.controller');
 const awbtopdfMiddleware = require('../middlewares/awbtopdf.middleware');
 const { createLeadController } = require('../controllers/createLead.controller');
-const { createProspectController } = require('../controllers/createProspect.controller');
+const { createDealController } = require('../controllers/createDeal.controller');
 const { getLeadController } = require('../controllers/getLead.controller');
 const { updateLeadController } = require('../controllers/updateLead.controller');
+const { updateDealController } = require('../controllers/updateDeal.controller');
 const router = express.Router();
 
 //testing route
@@ -25,5 +26,6 @@ router.post('/upload-convert',awbtopdfMiddleware,convertController2);
 router.post('/create-lead/:Customer_id',createLeadController)
 router.get('/get-lead/:Zoho_id',getLeadController)
 router.put('/update-lead/:Zoho_id',updateLeadController)
-router.post('/create-prospect/:Customer_id/:Zoho_id',createProspectController)
+router.post('/create-deal/:Customer_id/',createDealController)
+router.put('/update-deal/:Zoho_id',updateDealController)
 module.exports = router;
