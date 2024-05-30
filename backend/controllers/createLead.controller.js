@@ -9,7 +9,7 @@ exports.createLeadController = async (req, res) => {
     if (!customerId) {
       return res.status(400).json({ error: 'Customer_id is required' });
     }
-    const customerDetailsResponse = await axios.get(`${process.env.CUSTOMER_DETAIL_API}?Customer_Id=${customerId}`, {
+    const customerDetailsResponse = await axios.get(`${process.env.LEX_CUSTOMER_DETAIL_API}Customer_Id=${customerId}`, {
       headers: {
         'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
         'Content-Type': 'application/json'

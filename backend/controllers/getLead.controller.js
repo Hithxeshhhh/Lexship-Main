@@ -1,10 +1,10 @@
 require('dotenv').config();
 const axios = require('axios');
-exports.getLeadController = async(req,res) =>{
-    try{
+exports.getLeadController = async (req, res) => {
+    try {
         const zoho_id = req.params.Zoho_id;
-        if(!zoho_id){
-            return res.status(400).json({error:'Zoho id is required'})
+        if (!zoho_id) {
+            return res.status(400).json({ error: 'Zoho id is required' })
         }
         const zohoLeadApi = process.env.ZOHO_LEAD_API;
         const zohoOAuthToken = process.env.ZOHO_OAUTH_TOKEN;
@@ -19,7 +19,7 @@ exports.getLeadController = async(req,res) =>{
             }
         });
         res.status(leadResponse.status).json(leadResponse.data);
-    }catch(error){
+    } catch (error) {
         console.error('Error fetching Zoho lead:', error);
 
         if (error.response) {
