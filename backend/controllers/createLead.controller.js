@@ -1,22 +1,31 @@
 require('dotenv').config();
 const axios = require('axios');
-const fs = require('fs');
+const fs = require('fs').promises; 
 const path = require('path');
 
 exports.createLeadController = async (req, res) => {
   try {
-    const customerId = req.params.Customer_id;
+    const { Customer_id: customerId } = req.params;
+
     if (!customerId) {
       return res.status(400).json({ error: 'Customer_id is required' });
     }
-    const customerDetailsResponse = await axios.get(`${process.env.LEX_CUSTOMER_DETAIL_API}Customer_Id=${customerId}`, {
+
+    const { LEX_CUSTOMER_DETAIL_API, BEARER_TOKEN, ZOHO_LEAD_API, ZOHO_OAUTH_TOKEN } = process.env;
+
+    const customerDetailsResponse = await axios.get(`${LEX_CUSTOMER_DETAIL_API}Customer_Id=${customerId}`, {
       headers: {
-        'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
+        'Authorization': `Bearer ${BEARER_TOKEN}`,
         'Content-Type': 'application/json'
       }
     });
-    const customerDetails = customerDetailsResponse.data[0]
-    const leadData = {
+
+    const customerDetails = customerDetailsResponse.data[0];
+    if (!customerDetails) {
+      return res.status(404).json({ error: 'Customer details not found' });
+    }
+
+    const payload = {
       data: [
         {
           Cust_ID: customerDetails.id,
@@ -26,29 +35,28 @@ exports.createLeadController = async (req, res) => {
           Email: customerDetails.email,
           Phone: customerDetails.mobile,
           Type_of_business: customerDetails.type_of_business
-        }]
-    }
-    // Send data to Zoho CRM API
-    const zohoResponse = await axios.post(process.env.ZOHO_LEAD_API, leadData, {
+        }
+      ]
+    };
+
+    const zohoResponse = await axios.post(ZOHO_LEAD_API, payload, {
       headers: {
-        'Authorization': `Zoho-oauthtoken ${process.env.ZOHO_OAUTH_TOKEN}`,
+        'Authorization': `Zoho-oauthtoken ${ZOHO_OAUTH_TOKEN}`,
         'Content-Type': 'application/json',
       }
     });
 
-    const zohoResponseData = zohoResponse.data;
+    const { data: zohoResponseData } = zohoResponse;
 
     if (zohoResponseData.data && zohoResponseData.data.length > 0) {
       const leadId = zohoResponseData.data[0].details.id;
 
-      // Define the path to the file
       const filePath = path.join(__dirname, '../leadsInfo', 'leadDetails.txt');
-      console.log(filePath)
-      // Append the lead ID to the file
-      fs.appendFileSync(filePath, `${leadId}\n`, 'utf8');
+      console.log(filePath);
+
+      await fs.appendFile(filePath, `${leadId}\n`, 'utf8');
     }
 
-    // Respond with the Zoho CRM API response
     res.status(zohoResponse.status).json(zohoResponse.data);
   } catch (error) {
     console.error('Error creating lead:', error.response ? error.response.data : error.message);

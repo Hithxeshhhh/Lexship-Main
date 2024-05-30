@@ -19,12 +19,12 @@ const getCustomerDetails = async (customerId) => {
     return response.data[0];
 };
 
-const createZohoDeal = async (dealData) => {
+const createZohoDeal = async (payload) => {
     const headers = {
         'Authorization': `Zoho-oauthtoken ${ZOHO_OAUTH_TOKEN}`,
         'Content-Type': 'application/json',
     };
-    const response = await axios.post(ZOHO_DEAL_API, dealData, { headers });
+    const response = await axios.post(ZOHO_DEAL_API, payload, { headers });
     return response.data;
 };
 
@@ -49,12 +49,12 @@ exports.createDealController = async (req, res) => {
         const zohoLeadId = customerDetails.Zoho_Lead_ID;
         console.log(`LEX Customer Detail API zoho id: ${zohoLeadId}`);
 
-        const dealData = {
+        const payload = {
             data: [{ id: zohoLeadId, ...dealName }]
         };
-        console.log(`Req body data to zohoAPI: ${JSON.stringify(dealData)}`);
+        console.log(`Req body data to zohoAPI: ${JSON.stringify(payload)}`);
 
-        const zohoDealResponseData = await createZohoDeal(dealData);
+        const zohoDealResponseData = await createZohoDeal(payload);
         const createdDealId = zohoDealResponseData.data[0].details.id;
 
         console.log(`Updating customer details with Deal ID: ${createdDealId}`);
