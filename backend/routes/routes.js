@@ -11,6 +11,7 @@ const { getLeadController } = require('../controllers/getLead.controller');
 const { updateLeadController } = require('../controllers/updateLead.controller');
 const { updateDealController } = require('../controllers/updateDeal.controller');
 const { getDealController } = require('../controllers/getDeal.controller');
+const { createAccountController } = require('../controllers/createAccount.controller');
 const router = express.Router();
 
 //testing route
@@ -25,9 +26,10 @@ router.post('/upload-convert',awbtopdfMiddleware,convertController2);
 
 //Zoho integration routes
 router.post('/create-lead/:Customer_id',createLeadController)
-router.get('/get-lead/:Zoho_id',getLeadController)
 router.put('/update-lead/:Zoho_id',updateLeadController)
+router.get('/get-lead/:Zoho_id',getLeadController)
 router.post('/create-deal/:Customer_id/',createDealController)
 router.put('/update-deal/:Zoho_Deal_Id',updateDealController)
 router.get('/get-deal/:Zoho_Deal_Id',getDealController)
+router.post('/create-account/:Customer_id/:Zoho_deal_id',createAccountController)
 module.exports = router;
