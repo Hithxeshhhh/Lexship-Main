@@ -93,10 +93,11 @@ const StatusUpdatePage = () => {
           AWBs: tags,
         }
       );
+      console.log(res.data)
       setSuccess(true);
       setError('');
       setTimeout(() => setSuccess(false), 6000)
-      // console.log(res.data)
+      // console.log(res.data)  
     }
     catch (err) { console.error('Error:', err); }
     finally { setLoading(false); }
