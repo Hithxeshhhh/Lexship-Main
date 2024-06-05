@@ -33,7 +33,7 @@ router.get('/get-lead/:Zoho_id',getLeadController)
 router.post('/create-deal/:Customer_id/',createDealController)
 router.put('/update-deal/:Zoho_Deal_Id',updateDealController)
 router.get('/get-deal/:Zoho_Deal_Id',getDealController)
-router.post('/create-account/:Customer_id/:Zoho_deal_id',createAccountController)
+router.post('/create-account/:Customer_id',createAccountController)
 router.get('/get-account/:Zoho_Account_id',getAccountController)
 router.put('/update-account/:Zoho_Account_id',updateAccountController)
 module.exports = router;
