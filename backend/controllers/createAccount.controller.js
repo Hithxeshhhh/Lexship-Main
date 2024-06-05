@@ -94,9 +94,9 @@ exports.createAccountController = async (req, res) => {
         const dealDetails = await getZohoDealDetails(zohoDealId);
         const payload = constructPayload(customerId, zohoDealId, accountName, customerDetails, dealDetails);
         console.log("Payload being sent to Zoho:", JSON.stringify(payload, null, 2));
-        // const zohoCreateAccountResponse = await createZohoAccount(payload);
-        // console.log("Response from Zoho:", zohoCreateAccountResponse);
-        // res.status(200).send(zohoCreateAccountResponse);
+        const zohoCreateAccountResponse = await createZohoAccount(payload);
+        console.log("Response from Zoho:", zohoCreateAccountResponse);
+        res.status(200).send(zohoCreateAccountResponse);
     } catch (error) {
         console.error("Error creating account:", error.response ? error.response.data : error.message);
         res.status(500).send(error.response ? error.response.data : { message: error.message });
