@@ -11,10 +11,12 @@ exports.getDealController = async (req, res) => {
     try {
         const { Zoho_Deal_Id: zohoDealId } = req.params;
 
+        //Validating request parameters
         if (!zohoDealId) {
             return res.status(400).json({ error: 'Zoho deal id is required' });
         }
 
+        //Calling the deal get api serving zoho deal id to it
         const dealResponse = await axios.get(`${ZOHO_DEAL_API}/${zohoDealId}`, {
             headers: {
                 'Authorization': `Zoho-oauthtoken ${ZOHO_OAUTH_TOKEN}`,
