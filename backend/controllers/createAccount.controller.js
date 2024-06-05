@@ -67,7 +67,7 @@ const constructPayload = (customerId, zohoDealId, accountName, customerDetails, 
                 Market_Place: dealDetails.Market_Place,
                 Competitors: dealDetails.Competitors,
                 No_of_shipments: dealDetails.No_of_shipments1,
-                Major_Destinations1: dealDetails.Major_Destinations,
+                Major_Destinations: dealDetails.Major_Destinations1,
                 Expectations_of_the_customer_for_Services_Quot: dealDetails.Expectations_of_the_customer_for_Services_Quot,
                 Weight_Package: dealDetails.Weight_Package,
                 Type_of_business: dealDetails.Type_of_business,
@@ -81,21 +81,22 @@ const constructPayload = (customerId, zohoDealId, accountName, customerDetails, 
 //Create Account Controller
 exports.createAccountController = async (req, res) => {
     try {
-        const { Customer_id: customerId, Zoho_deal_id: zohoDealId } = req.params;
+        const { Customer_id: customerId} = req.params;
         const accountName = req.body;
-        if (!customerId || !zohoDealId) {
-            return res.status(400).json({ error: 'Customer_id and Zoho_deal_id are required parameters' });
+        if (!customerId) {
+            return res.status(400).json({ error: 'Customer_id is required' });
         }
         if (!accountName || Object.keys(accountName).length === 0) {
             return res.status(400).json({ error: 'Account name details are required in the request body' });
         }
         const customerDetails = await getCustomerDetails(customerId);
+        const zohoDealId = customerDetails.Zoho_Deal_ID;
         const dealDetails = await getZohoDealDetails(zohoDealId);
         const payload = constructPayload(customerId, zohoDealId, accountName, customerDetails, dealDetails);
         console.log("Payload being sent to Zoho:", JSON.stringify(payload, null, 2));
-        const zohoCreateAccountResponse = await createZohoAccount(payload);
-        console.log("Response from Zoho:", zohoCreateAccountResponse);
-        res.status(200).send(zohoCreateAccountResponse);
+        // const zohoCreateAccountResponse = await createZohoAccount(payload);
+        // console.log("Response from Zoho:", zohoCreateAccountResponse);
+        // res.status(200).send(zohoCreateAccountResponse);
     } catch (error) {
         console.error("Error creating account:", error.response ? error.response.data : error.message);
         res.status(500).send(error.response ? error.response.data : { message: error.message });
