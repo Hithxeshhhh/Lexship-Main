@@ -3,6 +3,20 @@ const axios = require('axios');
 const fs = require('fs').promises; 
 const path = require('path');
 
+const updateCustomerDetails = async (customerId, zohoLeadId) => {
+  try {
+      const url = `${process.env.LEX_UPDATE_ZOHO_API}Customer_Id=${customerId}&Zoho_Lead_Id=${zohoLeadId}`;
+      const headers = {
+          'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
+          'Content-Type': 'application/json',
+      };
+      const response = await axios.get(url, { headers });
+      return response.data;
+  } catch (error) {
+      throw new Error(`Failed to update customer details: ${error.message}`);
+  }
+};
+
 exports.createLeadController = async (req, res) => {
   try {
     const { Customer_id: customerId } = req.params;
@@ -38,7 +52,7 @@ exports.createLeadController = async (req, res) => {
         }
       ]
     };
-
+    console.log(`Payload sent to Zoho Lead API  ${JSON.stringify(payload, null, 2)}`)
     const zohoResponse = await axios.post(ZOHO_LEAD_API, payload, {
       headers: {
         'Authorization': `Zoho-oauthtoken ${ZOHO_OAUTH_TOKEN}`,
@@ -47,17 +61,17 @@ exports.createLeadController = async (req, res) => {
     });
 
     const { data: zohoResponseData } = zohoResponse;
-
+    let customerUpdateResponse;
     if (zohoResponseData.data && zohoResponseData.data.length > 0) {
       const leadId = zohoResponseData.data[0].details.id;
-
+      
+      customerUpdateResponse = await updateCustomerDetails(customerId, leadId)
       const filePath = path.join(__dirname, '../leadsInfo', 'leadDetails.txt');
       console.log(filePath);
 
       await fs.appendFile(filePath, `${leadId}\n`, 'utf8');
     }
-
-    res.status(zohoResponse.status).json(zohoResponse.data);
+    res.status(200).json(customerUpdateResponse);
   } catch (error) {
     console.error('Error creating lead:', error.response ? error.response.data : error.message);
     res.status(error.response ? error.response.status : 500).json({
