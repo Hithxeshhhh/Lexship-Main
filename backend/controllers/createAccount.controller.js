@@ -54,25 +54,62 @@ const createZohoAccount = async (payload) => {
 };
 
 //Constructing payload that is to be sent to create account
-const constructPayload = (customerId, zohoDealId, accountName, customerDetails, dealDetails) => {
+const constructPayload = (customerId, zohoDealId, reqBodyData, customerDetails, dealDetails) => {
     return {
         data: [
             {
+                Adcode: customerDetails.adcode,
+                Bank_Account_Number: customerDetails.bank_account,
                 Cust_Id: customerId,
                 Customer_ID: zohoDealId,
-                ...accountName,
+                ...reqBodyData,
+                Mobile: customerDetails.mobile,
+                Email: customerDetails.email,
                 Account_Type: customerDetails.account_type,
                 IFSC_Code: customerDetails.ifsc_code,
-                Bank_Account_Number: customerDetails.bank_account,
-                Market_Place: dealDetails.Market_Place,
+                Market_Place: customerDetails.Market_Place,
                 Competitors: dealDetails.Competitors,
                 No_of_shipments: dealDetails.No_of_shipments1,
-                Major_Destinations: dealDetails.Major_Destinations1,
+                Major_Destinations1: dealDetails.Major_Destinations1,
                 Expectations_of_the_customer_for_Services_Quot: dealDetails.Expectations_of_the_customer_for_Services_Quot,
                 Weight_Package: dealDetails.Weight_Package,
                 Type_of_business: dealDetails.Type_of_business,
                 Locked__s: dealDetails.Locked__s,
                 Tag: dealDetails.Tag,
+                Prospect_Name: dealDetails.Deal_Name,
+                Prospect_Stage: dealDetails.Stage,
+                Account: customerDetails.Account||"",
+                Account_Status: customerDetails.Account_Status||"",
+                Account_Type1: customerDetails.Account_Type1||"",
+                Adcode_Certificate: customerDetails.Adcode_Certificate||"",
+                Address_Proof: customerDetails.Address_Proof||"",
+                Billing_City: customerDetails.Billing_City||"",
+                Billing_Code: customerDetails.Billing_Code||"",
+                Billing_Country: customerDetails.Billing_Country||"",
+                Billing_State: customerDetails.Billing_State||"",
+                Billing_State1: customerDetails.Billing_State1||"",
+                Billing_Street: customerDetails.Billing_Street||"",
+                Account_Number: customerDetails.Account_Number||"",
+                GST_Certificate: customerDetails.GST_Certificate||"",
+                GST_Number: customerDetails.GST_Number||"",
+                Identity_Proof: customerDetails.Identity_Proof||"",
+                IEC_Certificate: customerDetails.IEC_Certificate||"",
+                IEC_Code: customerDetails.IEC_Code||"",
+                Industry: customerDetails.Industry||"",
+                LUT_Certificate: customerDetails.LUT_Certificate||"",
+                LUT_Expiration_Date: customerDetails.LUT_Expiration_Date||"",
+                Phone: customerDetails.Phone||"",
+                Sales_Person_Name: customerDetails.Sales_Person_Name||"",
+                Seller: customerDetails.Seller||"",
+                Seller_ID: customerDetails.Seller_ID||"",
+                Shipping_City: customerDetails.Shipping_City||"",
+                Shipping_Code: customerDetails.Shipping_Code|| "",
+                Shipping_Country: customerDetails.Shipping_Country||"",
+                Shipping_State: customerDetails.Shipping_State||"",
+                Shipping_State1: customerDetails.Shipping_State1||"",
+                Shipping_Street: customerDetails.Shipping_Street||"",
+                Upload_Address_Proof: customerDetails.Upload_Address_Proof||"",
+                Upload_Identity_Proof: customerDetails.Upload_Identity_Proof||"",
             }
         ]
     };
@@ -81,22 +118,19 @@ const constructPayload = (customerId, zohoDealId, accountName, customerDetails, 
 //Create Account Controller
 exports.createAccountController = async (req, res) => {
     try {
-        const { Customer_id: customerId} = req.params;
-        const accountName = req.body;
+        const { Customer_id: customerId } = req.params;
+        const reqBodyData = req.body;
         if (!customerId) {
             return res.status(400).json({ error: 'Customer_id is required' });
-        }
-        if (!accountName || Object.keys(accountName).length === 0) {
-            return res.status(400).json({ error: 'Account name details are required in the request body' });
         }
         const customerDetails = await getCustomerDetails(customerId);
         const zohoDealId = customerDetails.Zoho_Deal_ID;
         const dealDetails = await getZohoDealDetails(zohoDealId);
-        const payload = constructPayload(customerId, zohoDealId, accountName, customerDetails, dealDetails);
-        console.log("Payload being sent to Zoho:", JSON.stringify(payload, null, 2));
-        const zohoCreateAccountResponse = await createZohoAccount(payload);
-        console.log("Response from Zoho:", zohoCreateAccountResponse);
-        res.status(200).send(zohoCreateAccountResponse);
+        const payload = constructPayload(customerId, zohoDealId, reqBodyData, customerDetails, dealDetails);
+        console.log("Payload being sent to Zoho Accounts API:", JSON.stringify(payload, null, 2));
+        // const zohoCreateAccountResponse = await createZohoAccount(payload);
+        // console.log("Response from Zoho:", zohoCreateAccountResponse);
+        // res.status(200).send(zohoCreateAccountResponse);
     } catch (error) {
         console.error("Error creating account:", error.response ? error.response.data : error.message);
         res.status(500).send(error.response ? error.response.data : { message: error.message });
