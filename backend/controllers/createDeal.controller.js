@@ -48,7 +48,7 @@ const createZohoDeal = async (payload) => {
         const response = await axios.post(ZOHO_DEAL_API, payload, { headers });
         return response.data;
     } catch (error) {
-        throw new Error(`Failed to create Zoho deal: ${error.message}`);
+        throw new Error(`Failed to create Zoho deal: ${error}`);
     }
 };
 
@@ -68,7 +68,7 @@ const updateCustomerDetails = async (customerId, zohoLeadId, zohoDealId) => {
 
 exports.createDealController = async (req, res) => {
     try {
-        const dealName = req.body;
+        const reqBodyData = req.body;
         const customerId = req.params.Customer_id;
 
         console.log(`API Called for customer detail: ${LEX_CUSTOMER_DETAIL_API}Customer_Id=${customerId}`);
@@ -80,12 +80,14 @@ exports.createDealController = async (req, res) => {
         console.log(`LEX Customer Detail API Zoho ID: ${zohoLeadId}`);
 
         const contactName = `${customerDetails.name} ${customerDetails.last_name}`;
-
+        //creating deal name with specific template and sending it to the payload
+        const dealName = `LEXSHIP_${customerId}`;
         const payload = {
             data: [{
                 id: zohoLeadId,
-                ...dealName,
+                ...reqBodyData,
                 Cust_ID: customerDetails.id.toString(),
+                Deal_Name : dealName,
                 Customer_ID: zohoLeadId,
                 Customer_Type: customerDetails.account_type,
                 Account_Name: contactName,
