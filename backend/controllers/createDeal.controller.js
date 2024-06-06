@@ -101,7 +101,7 @@ exports.createDealController = async (req, res) => {
                 Lead_Source: zohoLeadDetails.Lead_Source
             }]
         };
-        console.log(`Request body data to Zoho API: ${JSON.stringify(payload, null, 2)}`);
+        console.log(`Payload being sent to Zoho Deals API: ${JSON.stringify(payload, null, 2)}`);
 
         const zohoDealResponseData = await createZohoDeal(payload);
         const createdDealId = zohoDealResponseData.data[0].details.id;
