@@ -18,6 +18,7 @@
 // const express = require("express");
 // const cors = require('cors');
 // const router = require("./routes/routes");
+//const {Server} = require("socket.io");
 // const https = require('https');
 // const fs = require('fs');
 // require("dotenv").config();
@@ -28,7 +29,13 @@
 //     cert: fs.readFileSync('/etc/letsencrypt/live/dev1.lexship.biz/fullchain.pem')
 // }
 // const port = process.env.PORT
-
+// const server = https.createServer(options, app);
+// const io = new Server(server, {
+    // cors:{
+    //     origin:"https://dev1.lexship.biz",
+    //     methods : ["GET","POST"]
+    // }
+//})
 // app.use(express.json())
 // app.use(express.static('public'));
 // const corsOptions={
@@ -36,8 +43,18 @@
 // }
 // app.use(cors(corsOptions))
 // app.use("/api/v1",router)
+// io.on('connection', (socket) => {
+//     console.log('A user connected');
 
-// https.createServer(options, app).listen(5000);
+//     socket.on('disconnect', () => {
+//         console.log('User disconnected');
+//     });
+// });
+// app.set('socketio', io); // New: Make io instance accessible in routes/middleware
+// server.listen(5000, () => {
+//     console.log(`App running on 5000...`);
+// });
+
 
 //socketio dev
 const express = require("express");
