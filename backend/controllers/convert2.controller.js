@@ -1,11 +1,8 @@
-//eta for 80awbs is 2mins 30sec
-//eta for 160awbs is 4mins 52sec
-//etc for 240awbs is 7mins 02sec
 const archiver = require('archiver');
 const { PDFNet } = require('@pdftron/pdfnet-node');
 const fs = require('fs');
 const path = require('path');
-const { Worker } = require('worker_threads');
+const im = require('imagemagick');
 require('dotenv').config();
 const { exec } = require('child_process');
 
@@ -49,30 +46,7 @@ function chunkArray(array, chunkSize) {
     return chunks;
 }
 
-function runCombineWorker(pdfFolderPath, multiPageTiffPath) {
-    return new Promise((resolve, reject) => {
-        const worker = new Worker(path.join(__dirname, 'combineWorker.js'), {
-            workerData: { pdfFolderPath, multiPageTiffPath }
-        });
-
-        worker.on('message', (message) => {
-            if (message.success) {
-                resolve();
-            } else {
-                reject(message.error);
-            }
-        });
-
-        worker.on('error', reject);
-        worker.on('exit', (code) => {
-            if (code !== 0) {
-                reject(new Error(`Worker stopped with exit code ${code}`));
-            }
-        });
-    });
-}
-
-async function combineTiffsBatch(pdfFiles) {
+async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, completedTasks) {
     try {
         const outputFolder = path.join(__dirname, '../combinedTif/');
         if (!fs.existsSync(outputFolder)) {
@@ -89,13 +63,37 @@ async function combineTiffsBatch(pdfFiles) {
             }
 
             const multiPageTiffPath = path.join(outputFolder, `${fileName}.tif`);
-            await runCombineWorker(pdfFolderPath, multiPageTiffPath);
-            console.log(`Successfully combined TIFF files for ${pdfFile}`);
+            await new Promise((resolve, reject) => {
+                im.convert([
+                    path.join(pdfFolderPath, '*.tif'),
+                    '-compress', 'LZW',
+                    '-density', '300',
+                    '-quality', '100',
+                    '-sharpen', '0x1.0',
+                    '-extent', '0x0',
+                    '-append',
+                    multiPageTiffPath
+                ], (err, stdout) => {
+                    if (err) {
+                        console.error(`Error combining TIFF files for ${pdfFile}:`, err);
+                        reject(err);
+                    } else {
+                        console.log(`Successfully combined TIFF files for ${pdfFile}`);
+                        fs.rmSync(pdfFolderPath, { recursive: true });
+                        console.log(`Folder ${pdfFolderPath} deleted.`);
+                        completedTasks++;
+                        io.emit('progress', { completed: completedTasks, total: totalTasks });
+                        resolve();
+                    }
+                });
+            });
         }));
         console.log('All PDFs converted and TIFF files combined.');
     } catch (error) {
         console.error('Error combining TIFF files:', error);
     }
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    return completedTasks;
 }
 
 async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTasks) {
@@ -127,7 +125,10 @@ async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTask
         completedTasks++;
         io.emit('progress', { completed: completedTasks, total: totalTasks });
     }));
+
+    // Add a 3-second delay after each batch
     await new Promise(resolve => setTimeout(resolve, 3000));
+
     return completedTasks;
 }
 
@@ -139,7 +140,7 @@ exports.convertController2 = async (req, res) => {
             const inputFolder = path.join(__dirname, '../uploads/');
             const pdfFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith('.pdf'));
             const totalTasks = pdfFiles.length * 2;
-            const batchSize = 100;
+            const batchSize = 80;
             const pdfBatches = chunkArray(pdfFiles, batchSize);
 
             console.log('Starting PDF to TIFF conversion process...');
@@ -154,9 +155,8 @@ exports.convertController2 = async (req, res) => {
             batchNumber = 1;
             for (const batch of pdfBatches) {
                 console.log(`Combining TIFF files for batch ${batchNumber}...`);
-                await combineTiffsBatch(batch);
+                completedTasks = await combineTiffsBatch(batch, batchNumber++, io, totalTasks, completedTasks);
                 console.log(`Batch ${batchNumber} TIFF files combined.`);
-                batchNumber++;
             }
 
             console.log('Compressing TIFF files to ZIP...');
