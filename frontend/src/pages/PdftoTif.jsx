@@ -263,7 +263,7 @@ const PDFtotifPage = () => {
           <Flex w="fit-conten%" alignItems="center" justifyContent="center" flexDir="column" mt={5}>
             <Text>Progress: {Math.round(progress)}%</Text>
             <Progress value={progress} size="md" colorScheme="teal" w={1000}  hasStripe isAnimated borderRadius={10}  />
-            <Text>Conversion in progress....</Text>
+            <Text>Conversion in progress.... (ETC : {Math.ceil(tags.length/ 80) * 3} minutes)</Text>
           </Flex>
          )} 
       </Flex>
