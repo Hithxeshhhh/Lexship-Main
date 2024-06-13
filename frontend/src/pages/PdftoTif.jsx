@@ -185,6 +185,7 @@ const PDFtotifPage = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
+          <Text color="gray.500" fontSize="sm">Please enter up to 100 AWBs at a time.</Text>
           {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
         </Flex>
         <Flex w="100%" flexDir="col" p={3} justifyContent="center" alignItems="center" mt={5}>
