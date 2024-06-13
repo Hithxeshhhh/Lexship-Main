@@ -87,8 +87,9 @@ const StatusUpdatePage = () => {
       setLoading(true);
       const data = statusData.find(item => item.value === status);
       console.log(data.code, date, time)
+      console.log(`${import.meta.env.VITE_LEX_API_BASE}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`)
       const res = await instance.post(
-        `https://lexlive2.lexship.biz/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`,
+        `${import.meta.env.VITE_LEX_API_BASE}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`,
         {
           AWBs: tags,
         }
