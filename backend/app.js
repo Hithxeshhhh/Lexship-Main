@@ -1,20 +1,4 @@
-//development
-// const express = require("express");
-// const cors = require('cors');
-// const router = require("./routes/routes");
-// require("dotenv").config();
-// const app = express();
-// const port = process.env.PORT
-// app.use(express.json())
-// app.use(express.static('public'));
-// const corsOptions={
-//     exposedHeaders:['successful','failed']
-// }
-// app.use(cors(corsOptions))
-// app.use("/api/v1",router)
-// app.listen(port, ()=>{console.log(`App running on ${port}`)})
-
-//production
+//production and dev
 // const express = require("express");
 // const cors = require('cors');
 // const router = require("./routes/routes");
