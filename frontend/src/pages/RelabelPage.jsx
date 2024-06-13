@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Flex, Heading, Input, Button, InputGroup, InputRightElement, Text, Grid, GridItem, Tag, TagLabel, TagCloseButton, Divider, Spinner, Alert, AlertIcon, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
-  Select
+  Select, RadioGroup, Radio, Stack, useToast
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCamera } from 'react-icons/fa';
 import SideNav from '../components/SideNav';
@@ -19,16 +19,28 @@ const Relabel = () => {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [successfulAWBs, setSuccessfulAWBs] = useState([]);
   const [failedAWBs, setFailedAWBs] = useState([]);
+  const [emiratesOption, setEmiratesOption] = useState("");
+  const [showOptions , setShowOptions] = useState(false);
+  const toast = useToast();
 
   const handleResetAll = () => {
     setTags([]);
     setError('');
     setSuccessfulAWBs([]);
     setFailedAWBs([]);
+    setEmiratesOption("");
+    setShowOptions(false);
   };
 
   const handleProvider = (e) => {
     setProvider(e.target.value);
+    if(e.target.value==='EMIRATES'){
+      setShowOptions(true)
+    }
+    if (e.target.value !== 'EMIRATES') {
+      setShowOptions(false)
+      setEmiratesOption("");
+    }
   };
 
   const handleTagRemove = (tagToRemove) => {
@@ -84,16 +96,30 @@ const Relabel = () => {
       setInputValue('');
     }
   };
-
+  var selectedProvider = "";
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      const selectedProvider = labelData.find(data => data.name === provider);
+      selectedProvider = labelData.find(data => data.name === provider);
       if (selectedProvider) {
-        const res = await instance.post(selectedProvider.api, { AWB: tags });
+        const url = `${import.meta.env.VITE_LEX_API_BASE}/${selectedProvider.api}`;
+        let payload = { AWB: tags };
+
+        if (provider === 'EMIRATES') {
+          payload.SERIES = emiratesOption;
+          if (!emiratesOption) {
+            setError('Please select an Emirates option.');
+            setLoading(false);
+            return;
+          }
+        }
+
+        console.log(payload, url)
+        const res = await instance.post(url, payload);
+        console.log(res.data);
         const { Success, Fail } = res.data;
-        setSuccessfulAWBs(Success.map(item => item.FROM_AWB));
-        setFailedAWBs(Fail.map(item => item.FROM_AWB));
+        setSuccessfulAWBs(Success);
+        setFailedAWBs(Fail.map(item => item.FROM_AWB || item.POST11));
 
         if (Success.length === tags.length) {
           setSuccess(true);
@@ -111,6 +137,19 @@ const Relabel = () => {
     }
   };
 
+  const handleCopyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copied to clipboard",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }).catch((err) => {
+      console.error('Failed to copy:', err);
+    });
+  };
+
   return (
     <Flex flexDir='row'>
       <SideNav />
@@ -118,7 +157,7 @@ const Relabel = () => {
         {success && (
           <Alert status="success" w="50vh" mt={2}>
             <AlertIcon />
-            {successfulAWBs.length} AWBs relabeled successfully
+             AWBs relabeled successfully
           </Alert>
         )}
         <Heading size='lg' textAlign='center' color='gray.400'>Relabel</Heading>
@@ -144,7 +183,7 @@ const Relabel = () => {
                   <FaArrowRight />
                 </Button>
               </InputRightElement> :
-              <InputRightElement> 
+              <InputRightElement>
                 <Button onClick={handleEnter}>
                   <FaArrowRight />
                 </Button>
@@ -175,6 +214,18 @@ const Relabel = () => {
                     ))}
                   </Select>
                 </Flex>
+                {showOptions && (
+                  <Flex mt={5} gap={5} flexDir={'column'} alignItems={'center'}>
+                    <Heading size='sm' fontWeight={400}>Select Emirates Option:</Heading>
+                    <RadioGroup onChange={setEmiratesOption} value={emiratesOption}>
+                      <Stack direction="row">
+                        <Radio value='LX'>LX</Radio>
+                        <Radio value="RR">RR</Radio>
+                        <Radio value="EPX">EPX</Radio>
+                      </Stack>
+                    </RadioGroup>
+                  </Flex>
+                )}
                 <Flex alignItems={'center'} justifyContent={'center'} mt={10} gap={5}>
                   <Button onClick={handleResetAll}>Reset All</Button>
                   <Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>
@@ -187,32 +238,47 @@ const Relabel = () => {
         </Flex>
         <Flex w='100%' p={3} flexDir='col' justifyContent='space-around' alignItems='center' mt={5} >
           <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%'>
-          {(successfulAWBs.length > 0 || failedAWBs.length > 0) && <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
-            {successfulAWBs.length > 0 && (
-              <GridItem >
-                <Heading size='md' mb={5} textAlign='center'>Successful : {successfulAWBs.length}</Heading>
-                <Grid templateColumns='repeat(6, 1fr)' gap={1}>
-                  {successfulAWBs.map((awb, index) => (
-                    <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="green">
-                      <TagLabel>{awb}</TagLabel>
-                    </Tag>
-                  ))}
-                </Grid>
+            {(successfulAWBs.length > 0 || failedAWBs.length > 0) &&
+              <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
+                {successfulAWBs.length > 0 && (
+                  <GridItem>
+                    <Heading size='md' mb={5} textAlign='center'>Successful : {successfulAWBs.length}</Heading>
+                    <Grid templateColumns='repeat(1, 1fr)'  >
+                      {successfulAWBs.map((awb, index) => (
+                        <Flex key={index} mb={2} justifyContent="center" alignItems="center">
+                          {provider === 'EMIRATES' && (<Text mr={2}>{awb.FROM_AWB} → {awb.EMIRATES}</Text>)}
+                          {provider === 'CLEVY' && <Text mr={2}>{awb.FROM_AWB} → {awb.CLEVY_AWB}</Text>}
+                          {provider === 'ORANGEDS' && <Text mr={2}>{awb.FROM_AWB} → {awb.ORANGEDS}</Text>}
+                        </Flex>
+                      ))}
+                    </Grid>
+                    <Flex justifyContent="center" mt={4}>
+                      {provider==='EMIRATES'&&<Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.EMIRATES}`).join('\n'))}>
+                        Copy All
+                      </Button>}
+                      {provider==='CLEVY'&&<Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.CLEVY_AWB}`).join('\n'))}>
+                        Copy All
+                      </Button>}
+                      {provider==='ORANGEDS'&&<Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ORANGEDS}`).join('\n'))}>
+                        Copy All
+                      </Button>}
+                    </Flex>
+                  </GridItem>
+                )}
+                {failedAWBs.length > 0 && (
+                  <GridItem>
+                    <Heading size='md' mb={5} textAlign='center'>Failed : {failedAWBs.length}</Heading>
+                    <Grid templateColumns='repeat(6, 1fr)' gap={1}>
+                      {failedAWBs.map((awb, index) => (
+                        <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
+                          <TagLabel>{awb}</TagLabel>
+                        </Tag>
+                      ))}
+                    </Grid>
+                  </GridItem>
+                )}
               </GridItem>
-            )}
-            {failedAWBs.length > 0 && (
-              <GridItem>
-                <Heading size='md'  mb={5} textAlign='center'>Failed : {failedAWBs.length}</Heading>
-                <Grid templateColumns='repeat(6, 1fr)' gap={1}>
-                  {failedAWBs.map((awb, index) => (
-                    <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
-                      <TagLabel>{awb}</TagLabel>
-                    </Tag>
-                  ))}
-                </Grid>
-              </GridItem>
-            )}
-            </GridItem>}
+            }
           </Grid>
         </Flex>
 
