@@ -191,16 +191,16 @@
   ],
   "labelData": [
     {
-      "name": "Emirates",
-      "api": "https://lexlive2.lexship.biz/api/map/post11/emirates"
+      "name": "EMIRATES",
+      "api": "api/map/post11/emirates"
     },
     {
-      "name": "Clevy",
-      "api": "https://lexlive2.lexship.biz/api/map/post11/clevy"
+      "name": "CLEVY",
+      "api": "api/map/post11/clevy"
     },
     {
-      "name": "Orange",
-      "api": "https://lexlive2.lexship.biz/api/map/post11/orangeds"
+      "name": "ORANGEDS",
+      "api": "api/map/post11/orangeds"
     }
   ]
 }
