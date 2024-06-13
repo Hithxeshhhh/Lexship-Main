@@ -24,7 +24,7 @@ const PDFtotifPage = () => {
       const calculatedProgress = (data.completed / data.total) * 100;
       console.log('Calculated Progress:', calculatedProgress);
       setProgress(calculatedProgress);
-      
+
     });
     socket.on('connect', () => {
       console.log('Socket.IO connected successfully!');
@@ -37,7 +37,7 @@ const PDFtotifPage = () => {
     socket.on('error', (error) => {
       console.error('Socket.IO error:', error);
     });
-    return () => { 
+    return () => {
       socket.disconnect();
     };
   }, []);
@@ -185,7 +185,7 @@ const PDFtotifPage = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
-          <Text color="gray.500" fontSize="sm">Please enter up to 100 AWBs at a time.</Text>
+          <Text color="red.400" fontSize="sm" fontWeight={400} >*Please enter up to 100 AWBs at a time.</Text>
           {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
         </Flex>
         <Flex w="100%" flexDir="col" p={3} justifyContent="center" alignItems="center" mt={5}>
@@ -263,10 +263,10 @@ const PDFtotifPage = () => {
         {loading && (
           <Flex w="fit-conten%" alignItems="center" justifyContent="center" flexDir="column" mt={5}>
             <Text>Progress: {Math.round(progress)}%</Text>
-            <Progress value={progress} size="md" colorScheme="teal" w={1000}  hasStripe isAnimated borderRadius={10}  />
-            <Text>Conversion in progress.... (ETC : {Math.ceil(tags.length/ 80) * 3} minutes)</Text>
+            <Progress value={progress} size="md" colorScheme="teal" w={1000} hasStripe isAnimated borderRadius={10} />
+            <Text>Conversion in progress.... (ETC : {Math.ceil(tags.length / 80) * 3} minutes)</Text>
           </Flex>
-         )} 
+        )}
       </Flex>
     </Flex>
   );
