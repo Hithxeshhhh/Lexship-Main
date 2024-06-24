@@ -34,7 +34,7 @@ const Relabel = () => {
 
   const handleProvider = (e) => {
     setProvider(e.target.value);
-    if(e.target.value==='EMIRATES'){
+    if (e.target.value === 'EMIRATES') {
       setShowOptions(true)
     }
     if (e.target.value !== 'EMIRATES') {
@@ -98,11 +98,14 @@ const Relabel = () => {
   };
   var selectedProvider = "";
   const handleSubmit = async () => {
+    let url_lex = ''
+    if (import.meta.env.VITE_ENV === 'prod') url_lex = import.meta.env.VITE_LEX_INITIAL_PROD
+    else url_lex = import.meta.env.VITE_LEX_INITIAL_DEV
     try {
       setLoading(true);
       selectedProvider = labelData.find(data => data.name === provider);
       if (selectedProvider) {
-        const url = `${import.meta.env.VITE_LEX_API_BASE}/${selectedProvider.api}`;
+        const url = `${url_lex}/${selectedProvider.api}`;
         let payload = { AWB: tags };
 
         if (provider === 'EMIRATES') {
@@ -157,7 +160,7 @@ const Relabel = () => {
         {success && (
           <Alert status="success" w="50vh" mt={2}>
             <AlertIcon />
-             AWBs relabeled successfully
+            AWBs relabeled successfully
           </Alert>
         )}
         <Heading size='lg' textAlign='center' color='gray.400'>Relabel</Heading>
@@ -253,13 +256,13 @@ const Relabel = () => {
                       ))}
                     </Grid>
                     <Flex justifyContent="center" mt={4}>
-                      {provider==='EMIRATES'&&<Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.EMIRATES}`).join('\n'))}>
+                      {provider === 'EMIRATES' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.EMIRATES}`).join('\n'))}>
                         Copy All
                       </Button>}
-                      {provider==='CLEVY'&&<Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.CLEVY_AWB}`).join('\n'))}>
+                      {provider === 'CLEVY' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.CLEVY_AWB}`).join('\n'))}>
                         Copy All
                       </Button>}
-                      {provider==='ORANGEDS'&&<Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ORANGEDS}`).join('\n'))}>
+                      {provider === 'ORANGEDS' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ORANGEDS}`).join('\n'))}>
                         Copy All
                       </Button>}
                     </Flex>

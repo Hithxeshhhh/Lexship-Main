@@ -5,6 +5,7 @@ import { FaArrowRight, FaBan } from 'react-icons/fa';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
+
 const PDFtotifPage = () => {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -15,9 +16,13 @@ const PDFtotifPage = () => {
   const [failedAWBs, setFailedAWBs] = useState([]);
   const [conversionType, setConversionType] = useState('');
   const [progress, setProgress] = useState(0);
-
+  
+  let url = '';
+  if(import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_BACKEND_PROD
+  else if(import.meta.env.VITE_ENV==='dev') url = import.meta.env.VITE_BACKEND_DEV
+  else url = import.meta.env.VITE_BACKEND_LOCAL
   useEffect(() => {
-    const socket = io('http://localhost:5000'); // replace with your backend URL
+    const socket = io(url); // replace with your backend URL
 
     socket.on('progress', (data) => {
       console.log('Progress event received:', data);
@@ -118,7 +123,7 @@ const PDFtotifPage = () => {
     }
     try {
       setLoading(true);
-      const res = await axios.post(`http://localhost:5000/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
+      const res = await axios.post(`${url}/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
       const successful = res.headers['successful'] || [];
       const failed = res.headers['failed'] || [];
       setSuccessfulAWBs(JSON.parse(successful).map(item => item.replace(/["']/g, "")));

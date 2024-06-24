@@ -84,12 +84,15 @@ const StatusUpdatePage = () => {
       return;
     }
     try {
+      let url = ''
+      if(import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_LEX_INITIAL_PROD
+      else url = import.meta.env.VITE_LEX_INITIAL_DEV
       setLoading(true);
       const data = statusData.find(item => item.value === status);
       console.log(data.code, date, time)
-      console.log(`${import.meta.env.VITE_LEX_API_BASE}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`)
+      console.log(`${url}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`)
       const res = await instance.post(
-        `${import.meta.env.VITE_LEX_API_BASE}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`,
+        `${url}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`,
         {
           AWBs: tags,
         }

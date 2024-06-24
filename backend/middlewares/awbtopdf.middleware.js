@@ -3,6 +3,14 @@ const fs = require('fs');
 const path = require('path'); // Require the path module
 
 const { exec } = require('child_process');
+require('dotenv').config()
+
+let url = '';
+if(process.env.NODE_ENV==='prod'){
+    url = process.env.LEX_PROD_INIT
+}else{
+    url = process.env.LEX_DEV_INIT
+}
 
 function emptyFolder(folderPath) {
     fs.readdir(folderPath, (err, files) => {
@@ -38,16 +46,16 @@ async function awbtopdfMiddleware(req, res, next) {
             let apiUrl;
             switch (conversionType) {
                 case 'Commercial Invoice':
-                    apiUrl = `https://lexlive2.lexship.biz/show/cinvoice/${awb}`;
+                    apiUrl = `${url}/show/cinvoice/${awb}`;
                     break;
                 case 'CI & Label':
-                    apiUrl = `https://lexlive2.lexship.biz/show/commercial-invoice/labels/api/${awb}`;
+                    apiUrl = `${url}/show/commercial-invoice/labels/api/${awb}`;
                     break;
                 case 'Clevy Label':
-                    apiUrl = `https://lexlive2.lexship.biz/clevyTiff/${awb}/true`;
+                    apiUrl = `${url}/clevyTiff/${awb}/true`;
                     break;
                 case 'Orange Label':
-                    apiUrl = `https://lexlive2.lexship.biz/orangedsTiff/${awb}/true`;
+                    apiUrl = `${url}/orangedsTiff/${awb}/true`;
                     break;
                 default:
                     apiUrl = '';
