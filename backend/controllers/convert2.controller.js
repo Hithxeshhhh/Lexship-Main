@@ -78,7 +78,7 @@ async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, complete
                         console.error(`Error combining TIFF files for ${pdfFile}:`, err);
                         reject(err);
                     } else {
-                        console.log(`Successfully combined TIFF files for ${pdfFile}`);
+                        if(process.env.NODE_ENV!=='prod') console.log(`Successfully combined TIFF files for ${pdfFile}`);
                         fs.rmSync(pdfFolderPath, { recursive: true });
                         console.log(`Folder ${pdfFolderPath} deleted.`);
                         completedTasks++;
@@ -88,7 +88,7 @@ async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, complete
                 });
             });
         }));
-        console.log('All PDFs converted and TIFF files combined.');
+        console.log('Batch PDFs converted and TIFF files combined.');
     } catch (error) {
         console.error('Error combining TIFF files:', error);
     }
@@ -121,7 +121,7 @@ async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTask
             await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
         }
         doc.destroy();
-        console.log(`PDF ${pdfFile} converted to TIFF successfully.`);
+        if(process.env.NODE_ENV!=='prod') console.log(`PDF ${pdfFile} converted to TIFF successfully.`);
         completedTasks++;
         io.emit('progress', { completed: completedTasks, total: totalTasks });
     }));
@@ -144,7 +144,7 @@ exports.convertController2 = async (req, res) => {
             const pdfBatches = chunkArray(pdfFiles, batchSize);
 
             console.log('Starting PDF to TIFF conversion process...');
-            console.log(`PDF Files: ${JSON.stringify(pdfFiles)}`);
+            if(process.env.NODE_ENV!=='prod') console.log(`PDF Files: ${JSON.stringify(pdfFiles)}`);
 
             let completedTasks = 0;
             let batchNumber = 1;
@@ -169,14 +169,14 @@ exports.convertController2 = async (req, res) => {
             pdfFiles.forEach(pdfFile => {
                 const pdfFilePath = path.join(inputFolder, pdfFile);
                 fs.unlinkSync(pdfFilePath);
-                console.log(`PDF file ${pdfFilePath} deleted.`);
+                if(process.env.NODE_ENV!=='prod') console.log(`PDF file ${pdfFilePath} deleted.`);
             });
 
             const tifFiles = fs.readdirSync(path.join(__dirname, '../combinedTif/')).filter(file => file.endsWith('.tif'));
             tifFiles.forEach(tifFile => {
                 const tifFilePath = path.join(path.join(__dirname, '../combinedTif/'), tifFile);
                 fs.unlinkSync(tifFilePath);
-                console.log(`TIFF file ${tifFilePath} deleted.`);
+                if(process.env.NODE_ENV!=='prod')console.log(`TIFF file ${tifFilePath} deleted.`);
             });
 
             res.setHeader('Content-Type', 'application/zip');
@@ -185,6 +185,16 @@ exports.convertController2 = async (req, res) => {
             res.setHeader('failed', JSON.stringify(failedDownloads));
             res.status(200).send(zipFile);
             console.log('PDF to TIFF conversion process completed and ZIP file sent.');
+            if(process.env.NODE_ENV !== 'local'){
+                exec('pm2 restart all', (err, stdout, stderr) => {
+                    if (err) {
+                        console.error('Error restarting PM2 process:', err);
+                        return;
+                    }
+                    console.log('PM2 process restarted successfully:', stdout);
+                });
+            }
+            
         } else {
             res.setHeader('successful', JSON.stringify(successfulDownloads));
             res.setHeader('failed', JSON.stringify(failedDownloads));

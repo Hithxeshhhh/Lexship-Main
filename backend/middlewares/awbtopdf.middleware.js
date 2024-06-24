@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const fs = require('fs');
+const fs = require('fs').promise;
 const path = require('path'); // Require the path module
 
 const { exec } = require('child_process');
@@ -12,17 +12,17 @@ if(process.env.NODE_ENV==='prod'){
     url = process.env.LEX_DEV_INIT
 }
 
-function emptyFolder(folderPath) {
-    fs.readdir(folderPath, (err, files) => {
-        if (err) throw err;
-
+async function emptyFolder(folderPath) {
+    try {
+        const files = await fs.readdir(folderPath);
         for (const file of files) {
             const filePath = path.join(folderPath, file);
-            fs.unlink(filePath, (err) => {
-                if (err) throw err;
-            });
+            await fs.unlink(filePath);
         }
-    });
+        console.log(`Successfully emptied folder: ${folderPath}`);
+    } catch (err) {
+        console.error(`Error emptying folder: ${folderPath}`, err);
+    }
 }
 
 
