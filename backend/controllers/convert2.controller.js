@@ -80,7 +80,7 @@ async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, complete
                     } else {
                         if(process.env.NODE_ENV!=='prod') console.log(`Successfully combined TIFF files for ${pdfFile}`);
                         fs.rmSync(pdfFolderPath, { recursive: true });
-                        console.log(`Folder ${pdfFolderPath} deleted.`);
+                        if(process.env.NODE_ENV!=='prod') console.log(`Folder ${pdfFolderPath} deleted.`);
                         completedTasks++;
                         io.emit('progress', { completed: completedTasks, total: totalTasks });
                         resolve();
@@ -111,7 +111,7 @@ async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTask
             fs.mkdirSync(outputFolderPath);
         }
 
-        console.log(`Converting PDF ${pdfFile} to TIFF...`);
+        if(process.env.NODE_ENV!=='prod') console.log(`Converting PDF ${pdfFile} to TIFF...`);
         const doc = await PDFNet.PDFDoc.createFromFilePath(pdfFilePath);
         const pdfDraw = await PDFNet.PDFDraw.create();
         pdfDraw.setDPI(200);
@@ -185,6 +185,7 @@ exports.convertController2 = async (req, res) => {
             res.setHeader('failed', JSON.stringify(failedDownloads));
             res.status(200).send(zipFile);
             console.log('PDF to TIFF conversion process completed and ZIP file sent.');
+            await new Promise(resolve => setTimeout(resolve, 5000));
             if(process.env.NODE_ENV !== 'local'){
                 exec('pm2 restart all', (err, stdout, stderr) => {
                     if (err) {

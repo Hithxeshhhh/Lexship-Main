@@ -12,28 +12,10 @@ if(process.env.NODE_ENV==='prod'){
     url = process.env.LEX_DEV_INIT
 }
 
-
-function emptyFolder(folderPath) {
-    fs.readdir(folderPath, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-            const filePath = path.join(folderPath, file);
-            fs.unlink(filePath, (err) => {
-                if (err) throw err;
-            });
-        }
-    });
-}
-
-
-
 async function awbtopdfMiddleware(req, res, next) {
     const io = req.app.get('socketio'); // Get socket.io instance
     let completedTasks = 0;
     try {
-        emptyFolder(path.join(__dirname, '../uploads/'));
-        emptyFolder(path.join(__dirname, '../convertedTif/'));
         const successfulDownloads = [];
         const failedDownloads = [];
         const { awbNumbers, conversionType } = req.body;
