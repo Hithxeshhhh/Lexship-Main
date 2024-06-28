@@ -13,14 +13,19 @@ if (!ZOHO_SHIPMENTS_API || !ZOHO_OAUTH_TOKEN) {
 exports.getShipmentController = async (req, res) => {
     try {
         const { Zoho_Shipment_id: zohoShipmentId } = req.params;
+
+        //Validating request paramenters
         if (!zohoShipmentId) {
             return res.status(400).json({ error: 'Zoho shipment id is required' });
         }
-        const headers = {
-            'Authorization': `Zoho-oauthtoken ${ZOHO_OAUTH_TOKEN}`,
-            'Content-Type': 'application/json'
-        }
-        const shipmentResponse = await axios.get(`${ZOHO_SHIPMENTS_API}/${zohoShipmentId}`, { headers });
+
+        //Calling the shipment get api serving zoho shipment id to it 
+        const shipmentResponse = await axios.get(`${ZOHO_SHIPMENTS_API}/${zohoShipmentId}`, {
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${ZOHO_OAUTH_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        });
         return res.status(200).json(shipmentResponse.data);
     } catch (error) {
         console.error('Error fetching Zoho deal:', error);
