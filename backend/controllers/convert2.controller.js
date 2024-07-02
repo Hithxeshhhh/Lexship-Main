@@ -185,7 +185,7 @@ exports.convertController2 = async (req, res) => {
             res.setHeader('failed', JSON.stringify(failedDownloads));
             res.status(200).send(zipFile);
             console.log('PDF to TIFF conversion process completed and ZIP file sent.');
-            await new Promise(resolve => setTimeout(resolve, 50*pdfFiles.length));
+            await new Promise(resolve => setTimeout(resolve, 10000));
             if(process.env.NODE_ENV !== 'local'){
                 exec('pm2 restart all', (err, stdout, stderr) => {
                     if (err) {
