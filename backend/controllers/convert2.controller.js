@@ -13,7 +13,7 @@ async function compresstozip(folderPath) {
         console.log(`Compressing files in ${folderPath} to ZIP...`);
         const output = fs.createWriteStream('compressed.zip');
         const archive = archiver('zip', {
-            zlib: { level: 9 }
+            zlib: { level: 6 }
         });
 
         output.on('close', function () {
@@ -67,7 +67,7 @@ async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, complete
                 im.convert([
                     path.join(pdfFolderPath, '*.tif'),
                     '-compress', 'LZW',
-                    '-density', '300',
+                    '-density', '200',
                     '-quality', '100',
                     '-sharpen', '0x1.0',
                     '-extent', '0x0',
@@ -78,9 +78,9 @@ async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, complete
                         console.error(`Error combining TIFF files for ${pdfFile}:`, err);
                         reject(err);
                     } else {
-                        if(process.env.NODE_ENV!=='prod') console.log(`Successfully combined TIFF files for ${pdfFile}`);
+                        if (process.env.NODE_ENV !== 'prod') console.log(`Successfully combined TIFF files for ${pdfFile}`);
                         fs.rmSync(pdfFolderPath, { recursive: true });
-                        if(process.env.NODE_ENV!=='prod') console.log(`Folder ${pdfFolderPath} deleted.`);
+                        if (process.env.NODE_ENV !== 'prod') console.log(`Folder ${pdfFolderPath} deleted.`);
                         completedTasks++;
                         io.emit('progress', { completed: completedTasks, total: totalTasks });
                         resolve();
@@ -111,7 +111,7 @@ async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTask
             fs.mkdirSync(outputFolderPath);
         }
 
-        if(process.env.NODE_ENV!=='prod') console.log(`Converting PDF ${pdfFile} to TIFF...`);
+        if (process.env.NODE_ENV !== 'prod') console.log(`Converting PDF ${pdfFile} to TIFF...`);
         const doc = await PDFNet.PDFDoc.createFromFilePath(pdfFilePath);
         const pdfDraw = await PDFNet.PDFDraw.create();
         pdfDraw.setDPI(200);
@@ -121,7 +121,7 @@ async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTask
             await pdfDraw.export(page, `${outputFolderPath}/page_${pageNum}.tif`, 'TIFF');
         }
         doc.destroy();
-        if(process.env.NODE_ENV!=='prod') console.log(`PDF ${pdfFile} converted to TIFF successfully.`);
+        if (process.env.NODE_ENV !== 'prod') console.log(`PDF ${pdfFile} converted to TIFF successfully.`);
         completedTasks++;
         io.emit('progress', { completed: completedTasks, total: totalTasks });
     }));
@@ -144,7 +144,7 @@ exports.convertController2 = async (req, res) => {
             const pdfBatches = chunkArray(pdfFiles, batchSize);
 
             console.log('Starting PDF to TIFF conversion process...');
-            if(process.env.NODE_ENV!=='prod') console.log(`PDF Files: ${JSON.stringify(pdfFiles)}`);
+            if (process.env.NODE_ENV !== 'prod') console.log(`PDF Files: ${JSON.stringify(pdfFiles)}`);
 
             let completedTasks = 0;
             let batchNumber = 1;
@@ -169,14 +169,14 @@ exports.convertController2 = async (req, res) => {
             pdfFiles.forEach(pdfFile => {
                 const pdfFilePath = path.join(inputFolder, pdfFile);
                 fs.unlinkSync(pdfFilePath);
-                if(process.env.NODE_ENV!=='prod') console.log(`PDF file ${pdfFilePath} deleted.`);
+                if (process.env.NODE_ENV !== 'prod') console.log(`PDF file ${pdfFilePath} deleted.`);
             });
 
             const tifFiles = fs.readdirSync(path.join(__dirname, '../combinedTif/')).filter(file => file.endsWith('.tif'));
             tifFiles.forEach(tifFile => {
                 const tifFilePath = path.join(path.join(__dirname, '../combinedTif/'), tifFile);
                 fs.unlinkSync(tifFilePath);
-                if(process.env.NODE_ENV!=='prod')console.log(`TIFF file ${tifFilePath} deleted.`);
+                if (process.env.NODE_ENV !== 'prod') console.log(`TIFF file ${tifFilePath} deleted.`);
             });
 
             res.setHeader('Content-Type', 'application/zip');
@@ -185,7 +185,7 @@ exports.convertController2 = async (req, res) => {
             res.setHeader('failed', JSON.stringify(failedDownloads));
             res.status(200).send(zipFile);
             console.log('PDF to TIFF conversion process completed and ZIP file sent.');
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 50*pdfFiles.length));
             if(process.env.NODE_ENV !== 'local'){
                 exec('pm2 restart all', (err, stdout, stderr) => {
                     if (err) {
@@ -209,3 +209,4 @@ exports.convertController2 = async (req, res) => {
 };
 
 PDFNet.shutdown();
+
