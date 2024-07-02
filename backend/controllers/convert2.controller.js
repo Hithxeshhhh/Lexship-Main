@@ -88,7 +88,6 @@ async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, complete
                 });
             });
         }));
-        console.log('Batch PDFs converted and TIFF files combined.');
     } catch (error) {
         console.error('Error combining TIFF files:', error);
     }
@@ -140,7 +139,7 @@ exports.convertController2 = async (req, res) => {
             const inputFolder = path.join(__dirname, '../uploads/');
             const pdfFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith('.pdf'));
             const totalTasks = pdfFiles.length * 2;
-            const batchSize = 80;
+            const batchSize = 10;
             const pdfBatches = chunkArray(pdfFiles, batchSize);
 
             console.log('Starting PDF to TIFF conversion process...');
@@ -156,7 +155,7 @@ exports.convertController2 = async (req, res) => {
             for (const batch of pdfBatches) {
                 console.log(`Combining TIFF files for batch ${batchNumber}...`);
                 completedTasks = await combineTiffsBatch(batch, batchNumber++, io, totalTasks, completedTasks);
-                console.log(`Batch ${batchNumber} TIFF files combined.`);
+                console.log(`Batch ${batchNumber-1} TIFF files combined.`);
             }
 
             console.log('Compressing TIFF files to ZIP...');
