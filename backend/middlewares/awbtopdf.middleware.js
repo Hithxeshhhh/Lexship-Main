@@ -6,9 +6,9 @@ const { exec } = require('child_process');
 require('dotenv').config()
 
 let url = '';
-if(process.env.NODE_ENV==='prod'){
+if (process.env.NODE_ENV === 'prod') {
     url = process.env.LEX_PROD_INIT
-}else{
+} else {
     url = process.env.LEX_DEV_INIT
 }
 
@@ -54,6 +54,8 @@ async function awbtopdfMiddleware(req, res, next) {
                 if (!response.ok) {
                     failedDownloads.push(awb);
                     console.error(`Failed to fetch PDF content for AWB ${awb}: ${response.status} ${response.statusText}`);
+                    completedTasks++;
+                    io.emit('progress', { completed: completedTasks, total: totalTasks });
                     continue;
                 }
 

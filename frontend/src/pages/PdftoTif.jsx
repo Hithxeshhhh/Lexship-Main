@@ -16,10 +16,10 @@ const PDFtotifPage = () => {
   const [failedAWBs, setFailedAWBs] = useState([]);
   const [conversionType, setConversionType] = useState('');
   const [progress, setProgress] = useState(0);
-  
+
   let url = '';
-  if(import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_BACKEND_PROD
-  else if(import.meta.env.VITE_ENV==='dev') url = import.meta.env.VITE_BACKEND_DEV
+  if (import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_BACKEND_PROD
+  else if (import.meta.env.VITE_ENV === 'dev') url = import.meta.env.VITE_BACKEND_DEV
   else url = import.meta.env.VITE_BACKEND_LOCAL
   useEffect(() => {
     const socket = io(url); // replace with your backend URL
@@ -66,13 +66,16 @@ const PDFtotifPage = () => {
       if (invalidTags.length === 0) {
         const duplicates = newTags.filter(tag => tags.includes(tag));
         if (duplicates.length === 0) {
+
           setTags([...tags, ...uniqueNewTags]);
         } else {
           setError('One or more AWB numbers already exist.');
+          setTimeout(() => setError(''), 3000);
         }
         setTags([...tags, ...uniqueNewTags]);
       } else {
         setError('Invalid AWB format.');
+        setTimeout(() => setError(''), 3000);
       }
 
       setInputValue('');
@@ -119,55 +122,70 @@ const PDFtotifPage = () => {
   const handleSubmit = async () => {
     if (!conversionType) {
       setError('Please select a conversion type.');
+      setTimeout(() => setError(''), 3000);
       return;
     }
-    try {
-      setLoading(true);
-      const res = await axios.post(`${url}/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
-      const successful = res.headers['successful'] || [];
-      const failed = res.headers['failed'] || [];
-      setSuccessfulAWBs(JSON.parse(successful).map(item => item.replace(/["']/g, "")));
-      setFailedAWBs(JSON.parse(failed).map(item => item.replace(/["']/g, "")));
-      console.log(res.data);
-      if (res.data.byteLength !== 0) {
-        const blob = new Blob([res.data], { type: 'application/zip' });
-        const url = window.URL.createObjectURL(blob);
-        const date = new Date();
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
-        const filename = `${timestamp}.zip`;
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        window.URL.revokeObjectURL(url);
-        setSuccess(true);
-        setError('');
-        setTimeout(() => setSuccess(false), 6000);
-      } else {
-        setError('Type mismatch');
+    if (tags.length > 100) {
+      setTags('');
+      setError('Please enter upto 100 AWBs only!');
+      setTimeout(() => setError(''), 3000);
+    } else {
+
+      try {
+        setLoading(true);
+        const res = await axios.post(`${url}/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
+        const successful = res.headers['successful'] || [];
+        const failed = res.headers['failed'] || [];
+        setSuccessfulAWBs(JSON.parse(successful).map(item => item.replace(/["']/g, "")));
+        setFailedAWBs(JSON.parse(failed).map(item => item.replace(/["']/g, "")));
+        console.log(res.data);
+        if (res.data.byteLength !== 0) {
+          const blob = new Blob([res.data], { type: 'application/zip' });
+          const url = window.URL.createObjectURL(blob);
+          const date = new Date();
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          const seconds = String(date.getSeconds()).padStart(2, '0');
+          const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
+          const filename = `${timestamp}.zip`;
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', filename);
+          document.body.appendChild(link);
+          link.click();
+          window.URL.revokeObjectURL(url);
+          setSuccess(true);
+          setError('');
+          setTimeout(() => setSuccess(false), 6000);
+        } else {
+          setError('Type mismatch');
+          setTimeout(() => setError(''), 3000);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <Flex flexDir="row">
       <SideNav />
-      <Flex w="100%" align="center" flexDir="column" p="1%" ml="30vh">
+      <Flex w="80%" align="center" flexDir="column" p="1%" ml="30vh">
         {success && (
-          <Alert status="success" w="50vh" mt={2}>
+          <Alert status="success" w="50vh" mt={2} mb={10}>
             <AlertIcon />
             {successfulAWBs.length}/{tags.length} Files downloaded successfully.
+          </Alert>
+        )}
+        {error && (
+          <Alert status="error" w="50vh" mt={2} mb={10} marginLeft='0 auto'>
+            <AlertIcon />
+            {error}
           </Alert>
         )}
         <Heading size="lg" color="gray.400">PDF to TIF</Heading>
@@ -191,7 +209,7 @@ const PDFtotifPage = () => {
             </InputRightElement>
           </InputGroup>
           <Text color="red.400" fontSize="sm" fontWeight={400} >*Please enter up to 100 AWBs at a time.</Text>
-          {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
+          
         </Flex>
         <Flex w="100%" flexDir="col" p={3} justifyContent="center" alignItems="center" mt={5}>
           <Grid templateColumns="repeat(1,1fr)" gap={9} w="100%">
