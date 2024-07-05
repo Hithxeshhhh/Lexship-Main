@@ -3,3 +3,4 @@ uploads/*
 !uploads/
 convertedTif/*
 !convertedTif/
+.env
