@@ -1,1 +1,4 @@
 /vite
+backend/.env
+frontend/.env
+
