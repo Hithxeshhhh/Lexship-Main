@@ -1,4 +1,5 @@
 const express = require('express');
+const { authenticateUser, verifyToken } = require('../middlewares/authentication.middleware');
 const { convertController2 } = require('../controllers/convert2.controller');
 const awbtopdfMiddleware = require('../middlewares/awbtopdf.middleware');
 const { createLeadController } = require('../controllers/createLead.controller');
@@ -11,29 +12,34 @@ const { createAccountController } = require('../controllers/createAccount.contro
 const { getAccountController } = require('../controllers/getAccount.controller');
 const { updateAccountController } = require('../controllers/updateAccount.controller');
 const { createShipmentController } = require('../controllers/createShipment.controller');
-const {getShipmentController} = require('../controllers/getShipment.controller');
+const { getShipmentController } = require('../controllers/getShipment.controller');
 const { updateShipmentController } = require('../controllers/updateShipment.controller');
 const router = express.Router();
 
-//testing route
-router.get('/test',(req,res)=>{
-    res.json({message:'Testing page'})
-})
+// Testing route
+router.get('/test', (req, res) => {
+    res.json({ message: 'Testing page' });
+});
 
-//module routes
-router.post('/upload-convert',awbtopdfMiddleware,convertController2);
+// Login route
+router.post('/login', authenticateUser);
 
-//Zoho integration routes
-router.post('/create-lead/:Customer_id',createLeadController)
-router.put('/update-lead/:Zoho_id',updateLeadController)
-router.get('/get-lead/:Zoho_id',getLeadController)
-router.post('/create-deal/:Customer_id/',createDealController)
-router.put('/update-deal/:Zoho_Deal_Id',updateDealController)
-router.get('/get-deal/:Zoho_Deal_Id',getDealController)
-router.post('/create-account/:Customer_id',createAccountController)
-router.get('/get-account/:Zoho_Account_id',getAccountController)
-router.put('/update-account/:Zoho_Account_id',updateAccountController)
-router.post('/create-shipment',createShipmentController)
-router.get('/get-shipment/:Zoho_Shipment_id',getShipmentController)
-router.put('/update-shipment/:Zoho_Shipment_id',updateShipmentController)
+// Apply JWT verification middleware for the following routes
+router.use(verifyToken);
+
+// Protected routes
+router.post('/upload-convert', [verifyToken,awbtopdfMiddleware], convertController2);
+router.post('/create-lead/:Customer_id', createLeadController);
+router.put('/update-lead/:Zoho_id', updateLeadController);
+router.get('/get-lead/:Zoho_id', getLeadController);
+router.post('/create-deal/:Customer_id/', createDealController);
+router.put('/update-deal/:Zoho_Deal_Id', updateDealController);
+router.get('/get-deal/:Zoho_Deal_Id', getDealController);
+router.post('/create-account/:Customer_id', createAccountController);
+router.get('/get-account/:Zoho_Account_id', getAccountController);
+router.put('/update-account/:Zoho_Account_id', updateAccountController);
+router.post('/create-shipment', createShipmentController);
+router.get('/get-shipment/:Zoho_Shipment_id', getShipmentController);
+router.put('/update-shipment/:Zoho_Shipment_id', updateShipmentController);
+
 module.exports = router;

@@ -20,6 +20,7 @@ async function awbtopdfMiddleware(req, res, next) {
         const failedDownloads = [];
         const { awbNumbers, conversionType } = req.body;
         const totalTasks = awbNumbers.length;
+        
 
         console.log('Starting AWB to PDF conversion process...');
         console.log(`Conversion Type: ${conversionType}`);
