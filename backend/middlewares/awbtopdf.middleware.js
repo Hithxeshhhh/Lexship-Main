@@ -48,7 +48,7 @@ async function awbtopdfMiddleware(req, res, next) {
                     continue;
             }
 
-            console.log(`Fetching PDF for AWB ${awb} from ${apiUrl}...`);
+           if(process.env.NODE_ENV!=='prod') console.log(`Fetching PDF for AWB ${awb} from ${apiUrl}...`);
 
             try {
                 const response = await fetch(apiUrl);
@@ -69,7 +69,7 @@ async function awbtopdfMiddleware(req, res, next) {
                 const outputPdfPath = path.join(__dirname, '../uploads', `${awb}.pdf`);
                 fs.writeFileSync(outputPdfPath, pdfContent);
                 successfulDownloads.push(awb);
-                console.log(`PDF for AWB ${awb} downloaded and saved successfully.`);
+                if(process.env.NODE_ENV!=='prod')console.log(`PDF for AWB ${awb} downloaded and saved successfully.`);
             } catch (downloadError) {
                 failedDownloads.push(awb);
                 console.error(`Error downloading PDF for AWB ${awb}:`, downloadError);

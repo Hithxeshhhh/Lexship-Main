@@ -8,7 +8,7 @@ require("dotenv").config();
 
 logger.info('Environment: ' + process.env.NODE_ENV)
 
-if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV == 'prod') {
+if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'prod') {
     const https = require('https');
     const app = express();
     const port = process.env.NODE_ENV==='prod' ? process.env.PROT_PROD : process.env.PORT_LOC_DEV
