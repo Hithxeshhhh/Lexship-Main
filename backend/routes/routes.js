@@ -24,11 +24,9 @@ router.get('/test', (req, res) => {
 // Login route
 router.post('/login', authenticateUser);
 
-// Apply JWT verification middleware for the following routes
-router.use(verifyToken);
 
 // Protected routes
-router.post('/upload-convert', [verifyToken,awbtopdfMiddleware], convertController2);
+router.post('/upload-convert', awbtopdfMiddleware, convertController2);
 router.post('/create-lead/:Customer_id', createLeadController);
 router.put('/update-lead/:Zoho_id', updateLeadController);
 router.get('/get-lead/:Zoho_id', getLeadController);
