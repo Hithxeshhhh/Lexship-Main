@@ -26,6 +26,7 @@ export default function NavItem({ icon, title, link,active, navSize }) {
                     _hover={{ textDecor: 'none', backgroundColor: "#AEC8CA" }}
                     w={navSize == "large" && "100%"}
                     href={destinationLink}
+                    
                 >
                     <MenuButton w="100%">
                         <Flex>
