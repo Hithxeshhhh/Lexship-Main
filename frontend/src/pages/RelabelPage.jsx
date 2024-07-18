@@ -252,6 +252,7 @@ const Relabel = () => {
                           {provider === 'EMIRATES' && (<Text mr={2}>{awb.FROM_AWB} → {awb.EMIRATES}</Text>)}
                           {provider === 'CLEVY' && <Text mr={2}>{awb.FROM_AWB} → {awb.CLEVY_AWB}</Text>}
                           {provider === 'ORANGEDS' && <Text mr={2}>{awb.FROM_AWB} → {awb.ORANGEDS}</Text>}
+                          {provider === 'ASENDIA' && <Text mr={2}>{awb.FROM_AWB} → {awb.ASENDIA_AWB}</Text>}
                         </Flex>
                       ))}
                     </Grid>
@@ -263,6 +264,9 @@ const Relabel = () => {
                         Copy All
                       </Button>}
                       {provider === 'ORANGEDS' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ORANGEDS}`).join('\n'))}>
+                        Copy All
+                      </Button>}
+                      {provider === 'ASENDIA' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ASENDIA_AWB}`).join('\n'))}>
                         Copy All
                       </Button>}
                     </Flex>

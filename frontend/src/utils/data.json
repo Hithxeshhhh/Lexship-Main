@@ -201,6 +201,10 @@
     {
       "name": "ORANGEDS",
       "api": "api/map/post11/orangeds"
+    },
+    {
+      "name" : "ASENDIA",
+      "api":"api/map/post11/asendia"
     }
   ]
 }

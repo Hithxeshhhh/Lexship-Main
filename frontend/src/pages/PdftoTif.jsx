@@ -130,7 +130,6 @@ const PDFtotifPage = () => {
       setError('Please enter upto 100 AWBs only!');
       setTimeout(() => setError(''), 3000);
     } else {
-
       try {
         setLoading(true);
         const res = await axios.post(`${url}/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
@@ -227,6 +226,7 @@ const PDFtotifPage = () => {
                 <Divider />
                 <Center>
                   <Select placeholder="Select Type" mt={5} w="40%" onChange={handleConversionTypeChange}>
+                    <option value="Asendia">Asendia</option>
                     <option value="Commercial Invoice">Commercial Invoice</option>
                     <option value="CI & Label">CI & Label</option>
                     <option value="Clevy Label">Clevy Label</option>
