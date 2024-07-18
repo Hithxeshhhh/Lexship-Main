@@ -7,15 +7,17 @@ import {
     Avatar,
     Heading,
     Image,
-    Icon
+    Icon,
+    Link
 } from '@chakra-ui/react';
 import {
     FiMenu,
     FiHome,
     FiBriefcase,
     FiSettings,
-    FiLogOut
 } from 'react-icons/fi';
+
+import {RiShutDownLine } from 'react-icons/ri'
 
 import NavItem from '../components/NavItem';
 import avatar from '../assets/avatar1.png';
@@ -24,7 +26,6 @@ import { FaHistory } from 'react-icons/fa';
 import { SiConvertio } from 'react-icons/si';
 import { MdLabelOutline } from 'react-icons/md';
 import { GrStatusGood } from 'react-icons/gr';
-import { Link } from 'react-router-dom';
 
 export default function Sidebar() {
     const logout = (event) => {
@@ -86,18 +87,20 @@ export default function Sidebar() {
                 <NavItem navSize={navSize} icon={FiSettings} title="Settings" />
                 {/* Directly calling logout function */}
                 <Divider display={navSize === "small" ? "none" : "flex"} mt='2vh' transition='all ease 0.4s' />
-                <Flex mt={30} flexDir="column" w="100%" alignItems={navSize === "small" ? "center" : "flex-start"}>
+                <Flex mt={30} flexDir="column" w="100%" alignItems={navSize === "small" ? "center" : "flex-start"} >
                     <Link
+                        backgroundColor="#F56565"
+                        borderRadius={8}
                         onClick={logout}
-                        color="gray.500"
+                        color="white"
+                        textDecor={'none'}
+                        _hover={{textDecor:'none'}}
                         fontWeight="500"
                         p={3}
-                        borderRadius={8}
-                        _hover={{ textDecor: 'none', backgroundColor: "#AEC8CA" }}
                         w={navSize === "large" ? "100%" : "auto"}
                     >
                         <Flex>
-                            <Icon as={FiLogOut} fontSize="xl" color="gray.500" />
+                            <Icon as={RiShutDownLine } fontSize="xl" color="white" />
                             <Text ml={5} display={navSize === "small" ? "none" : "flex"}>Logout</Text>
                         </Flex>
                     </Link>
