@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Input, FormControl, FormLabel, Button, Grid, GridItem, Center, Tabs, TabList, Tab, TabPanels, TabPanel, ListItem, ListIcon, List, Flex } from '@chakra-ui/react';
+import { Input, FormControl, FormLabel, Button, Grid, GridItem, Center, Tabs, TabList, Tab, TabPanels, TabPanel, ListItem, ListIcon, List, Flex, Spinner } from '@chakra-ui/react';
 import { Image } from '@chakra-ui/react';
 import { BiHourglass, BiLabel, BiMessageSquareDots } from 'react-icons/bi';
 import lexshipLogo from '../assets/lexship.png';
@@ -8,12 +8,16 @@ import { Link, useNavigate } from 'react-router-dom';
 const LoginPage = () => {
     const navigate = useNavigate();
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     let url = '';
     if (import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_BACKEND_PROD
     else if (import.meta.env.VITE_ENV === 'dev') url = import.meta.env.VITE_BACKEND_DEV
     else url = import.meta.env.VITE_BACKEND_LOCAL
+
     const handleLogin = async (event) => {
         event.preventDefault();
+        setIsLoading(true); // Set loading state to true
 
         const username = event.target.username.value;
         const password = event.target.password.value;
@@ -36,8 +40,11 @@ const LoginPage = () => {
             navigate('/dashboard'); // Redirect to a protected route
         } catch (error) {
             setError('Invalid username or password');
+        } finally {
+            setIsLoading(false); // Set loading state to false
         }
     };
+
     return (
         <Center>
             <Grid templateColumns="repeat(2, 1fr)" mt="10">
@@ -77,7 +84,9 @@ const LoginPage = () => {
                                             <Input name="password" placeholder="Password" type="password" required />
                                             {error && <p style={{ color: 'red' }}>{error}</p>}
                                             <FormLabel mt="1vh"><Link to="#">Forgot Password?</Link></FormLabel>
-                                            <Button bg="blue.500" mt="6vh" type="submit">Submit</Button>
+                                            <Button bg="blue.500" mt="6vh" type="submit" isLoading={isLoading} disabled={isLoading}>
+                                                {isLoading ? <Spinner size="sm" /> : 'Submit'}
+                                            </Button>
                                         </FormControl>
                                     </form>
                                 </TabPanel>
