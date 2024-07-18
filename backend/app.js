@@ -11,7 +11,7 @@ logger.info('Environment: ' + process.env.NODE_ENV)
 if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'prod') {
     const https = require('https');
     const app = express();
-    const port = process.env.NODE_ENV==='prod' ? process.env.PROT_PROD : process.env.PORT_LOC_DEV
+    const port = process.env.NODE_ENV==='prod' ? process.env.PORT_PROD : process.env.PORT_LOC_DEV
 
     let keyPath = process.env.NODE_ENV === 'dev' ? process.env.KEY_DEV : process.env.KEY_PROD;
     let certPath = process.env.NODE_ENV === 'dev' ? process.env.CERT_DEV : process.env.CERT_PROD;
