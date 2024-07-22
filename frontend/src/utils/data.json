@@ -169,12 +169,8 @@
       "value": "Pickup Cancelled"
     },
     {
-      "code": 201,
-      "value": "Held at LEX Hub (Prohibited Item)"
-    },
-    {
       "code": 200,
-      "value": "Held at LEX Hub (Prohibited Item)"
+      "value": "Held at LEX Hub"
     },
     {
       "code": 404,
