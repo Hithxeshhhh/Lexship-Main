@@ -69,6 +69,10 @@
       "value": "Item arrived at collection point for pickup by consignee"
     },
     {
+      "code":17,
+      "value":  "Injected into Evri"
+    },
+    {
       "code": 19,
       "value": "Delivery attempt"
     },
@@ -169,12 +173,8 @@
       "value": "Pickup Cancelled"
     },
     {
-      "code": 201,
-      "value": "Held at LEX Hub (Prohibited Item)"
-    },
-    {
       "code": 200,
-      "value": "Held at LEX Hub (Prohibited Item)"
+      "value": "Held at LEX Hub"
     },
     {
       "code": 404,
