@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Input, FormControl, FormLabel, Button, Grid, GridItem, Center, Tabs, TabList, Tab, TabPanels, TabPanel, ListItem, ListIcon, List, Flex, Spinner } from '@chakra-ui/react';
-import { Image } from '@chakra-ui/react';
-import { BiHourglass, BiLabel, BiMessageSquareDots } from 'react-icons/bi';
-import lexshipLogo from '../assets/lexship.png';
-import { Link, useNavigate } from 'react-router-dom';
+import lexshipLogo from "../assets/lexship.png";
+import { Button, Center, Flex, FormControl, FormLabel, Grid, GridItem, Input, List, ListIcon, ListItem, Spinner, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
+import { useState } from "react";
+import { BiHourglass, BiLabel, BiMessageSquareDots } from "react-icons/bi";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -43,6 +43,7 @@ const LoginPage = () => {
         } finally {
             setIsLoading(false); // Set loading state to false
         }
+        
     };
 
     return (

@@ -2,6 +2,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 const authenticateUser = (req, res) => {
+    
     const { username, password } = req.body;
 
     if (username === process.env.USER_NAME && password === process.env.PASSWORD) {

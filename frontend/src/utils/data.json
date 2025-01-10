@@ -205,6 +205,10 @@
     {
       "name" : "ASENDIA",
       "api":"api/map/post11/asendia"
+    },
+    {  
+      "name": "XINDUS", 
+      "api": "api/lexship/xindus" 
     }
   ]
 }

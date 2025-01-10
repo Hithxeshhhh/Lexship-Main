@@ -1,7 +1,7 @@
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
-import './App.css';
-import Spinner from './components/Spinner.jsx'
+import "./App.css";
+import Spinner from "./components/Spinner.jsx";
+import { Suspense, lazy } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage.jsx'));

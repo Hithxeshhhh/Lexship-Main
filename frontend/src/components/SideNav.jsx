@@ -1,4 +1,13 @@
-import { useState } from 'react';
+import NavItem from "../components/NavItem";
+import avatar from "../assets/avatar1.png";
+import logo from "../assets/lexship.png";
+import { useState } from "react";
+import { FaHistory } from "react-icons/fa";
+import { GrStatusGood } from "react-icons/gr";
+import { MdLabelOutline } from "react-icons/md";
+import { RiShutDownLine } from "react-icons/ri";
+import { SiConvertio } from "react-icons/si";
+
 import {
     Flex,
     Text,
@@ -15,17 +24,10 @@ import {
     FiHome,
     FiBriefcase,
     FiSettings,
+    FiEdit,
 } from 'react-icons/fi';
 
-import {RiShutDownLine } from 'react-icons/ri'
 
-import NavItem from '../components/NavItem';
-import avatar from '../assets/avatar1.png';
-import logo from '../assets/lexship.png';
-import { FaHistory } from 'react-icons/fa';
-import { SiConvertio } from 'react-icons/si';
-import { MdLabelOutline } from 'react-icons/md';
-import { GrStatusGood } from 'react-icons/gr';
 
 export default function Sidebar() {
     const logout = (event) => {
@@ -44,7 +46,7 @@ export default function Sidebar() {
             pos="fixed"
             h='100vh'
             boxShadow="0 4px 12px 0 rgba(0, 0, 0, 0.05)"
-            background='gray.700'
+            background='black'
             w={navSize === "small" ? "10vh" : "30vh"}
             transition='all ease 0.4s'
             flexDir="column"
@@ -78,7 +80,7 @@ export default function Sidebar() {
                     </Flex>
                 </Flex>
                 <Divider display={navSize === "small" ? "none" : "flex"} mt='2vh' transition='all ease 0.4s' />
-                <NavItem navSize={navSize} icon={FiHome} title="Dashboard" link='dashboard' active={lastPart === 'dashboard'} />
+                <NavItem navSize={navSize} icon={FiEdit} title="Pan Update" link='dashboard' active={lastPart === 'dashboard'} />
                 <NavItem navSize={navSize} icon={SiConvertio} title="PDF to TIF" link="pdftotif" active={lastPart === 'pdftotif'} />
                 <NavItem navSize={navSize} icon={MdLabelOutline} title="Relabel" link='relabel' active={lastPart === 'relabel'} />
                 <NavItem navSize={navSize} icon={GrStatusGood} title="Status Update" link='statusupdate' active={lastPart === 'statusupdate'} />

@@ -1,0 +1,19 @@
+{
+    "Success": [],
+    "Fail": [
+        {
+            "LEXSHIP AWB": "SD389906865TE",
+            "XINDUS AWB": "Failed Booking",
+            "STATUS CODE": 400,
+            "MESSAGE": "This HSN: 84835090 is not serviceable for the combination of chosen shipping method, origin compliance type & shipment value.",
+            "EXECUTION_TIME": 1.4046800136566162
+        },
+        {
+            "LEXSHIP AWB": "SD389906882TE",
+            "XINDUS AWB": "Failed Booking",
+            "STATUS CODE": 400,
+            "MESSAGE": "87141190 is invalid HSN. Please provide correct HSN for your product",
+            "EXECUTION_TIME": 1.2516679763793945
+        }
+    ]
+}

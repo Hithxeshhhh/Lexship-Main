@@ -1,0 +1,68 @@
+{
+  "Success": [
+        {
+            "LEXSHIP AWB": "SD389906763TE",
+            "XINDUS AWB": "X000348738",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 2.408971071243286
+        },
+        {
+            "LEXSHIP AWB": "SD389907260TE",
+            "XINDUS AWB": "X000348739",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 2.4688961505889893
+        },
+        {
+            "LEXSHIP AWB": "SD389907035TE",
+            "XINDUS AWB": "X000348740",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 5.0263731479644775
+        },
+        {
+            "LEXSHIP AWB": "SD389906750TE",
+            "XINDUS AWB": "X000348741",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 5.137348175048828
+        },
+        {
+            "LEXSHIP AWB": "SD389908092TE",
+            "XINDUS AWB": "X000348742",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 2.6283349990844727
+        },
+        {
+            "LEXSHIP AWB": "SD389908058TE",
+            "XINDUS AWB": "X000348743",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 4.478800058364868
+        },
+        {
+            "LEXSHIP AWB": "SD389908089TE",
+            "XINDUS AWB": "X000348744",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 3.914076089859009
+        },
+        {
+            "LEXSHIP AWB": "SD389908101TE",
+            "XINDUS AWB": "X000348745",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 2.4535999298095703
+        },
+        {
+            "LEXSHIP AWB": "SD389908075TE",
+            "XINDUS AWB": "X000348746",
+            "STATUS CODE": 201,
+            "MESSAGE": null,
+            "EXECUTION_TIME": 2.834455966949463
+        }
+    ],
+    "Fail": []
+}

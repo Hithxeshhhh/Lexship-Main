@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import "react-toastify/dist/ReactToastify.css";
+import BarcodeScanner from "../components/BarcodeScanner";
+import React from "react";
+import SideNav from "../components/SideNav";
+import instance from "../utils/AxiosInstance";
+import { keyframes } from "@chakra-ui/react";
+import { useState } from "react";
+import { FaArrowRight, FaCamera } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { labelData } from "../utils/data.json";
+
 import {
+  Box,
   Flex, Heading, Input, Button, InputGroup, InputRightElement, Text, Grid, GridItem, Tag, TagLabel, TagCloseButton, Divider, Spinner, Alert, AlertIcon, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter,
   Select, RadioGroup, Radio, Stack, useToast
 } from '@chakra-ui/react';
-import { FaArrowRight, FaCamera } from 'react-icons/fa';
-import SideNav from '../components/SideNav';
-import { labelData } from '../utils/data.json';
-import instance from '../utils/AxiosInstance';
-import BarcodeScanner from '../components/BarcodeScanner';
 
 const Relabel = () => {
   const [tags, setTags] = useState([]);
@@ -21,7 +27,10 @@ const Relabel = () => {
   const [failedAWBs, setFailedAWBs] = useState([]);
   const [emiratesOption, setEmiratesOption] = useState("");
   const [showOptions , setShowOptions] = useState(false);
-  const toast = useToast();
+  const toasts = useToast();
+
+
+
 
   const handleResetAll = () => {
     setTags([]);
@@ -97,52 +106,84 @@ const Relabel = () => {
     }
   };
   var selectedProvider = "";
+
+  // new changes in function to handle the submit
   const handleSubmit = async () => {
-    let url_lex = ''
-    if (import.meta.env.VITE_ENV === 'prod') url_lex = import.meta.env.VITE_LEX_INITIAL_PROD
-    else url_lex = import.meta.env.VITE_LEX_INITIAL_DEV
+    let url_lex = '';
+    if (import.meta.env.VITE_ENV === 'prod') url_lex = import.meta.env.VITE_LEX_INITIAL_PROD;
+    else url_lex = import.meta.env.VITE_LEX_INITIAL_DEV;
+
     try {
-      setLoading(true);
-      selectedProvider = labelData.find(data => data.name === provider);
-      if (selectedProvider) {
-        const url = `${url_lex}/${selectedProvider.api}`;
-        let payload = { AWB: tags };
+        setLoading(true);
+        selectedProvider = labelData.find(data => data.name === provider);
 
-        if (provider === 'EMIRATES') {
-          payload.SERIES = emiratesOption;
-          if (!emiratesOption) {
-            setError('Please select an Emirates option.');
-            setLoading(false);
-            return;
-          }
-        }
+        if (selectedProvider) {
+            const url = `${url_lex}/${selectedProvider.api}`;
+            let payload;
 
-        console.log(payload, url)
-        const res = await instance.post(url, payload);
-        console.log(res.data);
-        const { Success, Fail } = res.data;
-        setSuccessfulAWBs(Success);
-        setFailedAWBs(Fail.map(item => item.FROM_AWB || item.POST11));
+            if (provider === 'EMIRATES') {
+                payload = { AWB: tags, SERIES: emiratesOption };
+                if (!emiratesOption) {
+                    setError('Please select an Emirates option.');
+                    setLoading(false);
+                    return;
+                }
+            } else if (provider === 'XINDUS') {
+                payload = { LEXSHIP: tags }; 
+            } else {
+                payload = { AWB: tags }; 
+            }
 
-        if (Success.length === tags.length) {
-          setSuccess(true);
+            console.log(payload, url);
+            const res = await instance.post(url, payload);
+            console.log(res.data);
+            const { Success, Fail } = res.data;
+
+            // used this function especially for XINDUS provider
+            const normalizeKeys = (obj) => {
+                const newObj = {};
+                for (const key in obj) {
+                    // Replace spaces in keys with underscores
+                    const newKey = key.replace(/ /g, "_");
+                    newObj[newKey] = obj[key];
+                }
+                return newObj;
+            };
+
+            // Normalize keys in both Success and Fail arrays
+            const normalizedSuccess = Success.map(normalizeKeys);
+            const normalizedFail = Fail.map(normalizeKeys);
+            
+            setSuccessfulAWBs(normalizedSuccess);
+            // added failure message for XINDUS provider
+            setFailedAWBs(normalizedFail.map(item => ({
+              awb: item.FROM_AWB || item.POST11 || item.LEXSHIP_AWB,
+              message: item.MESSAGE
+            })));
+            
+            if (normalizedSuccess.length === tags.length) {
+                setSuccess(true);
+            } else {
+                setError(`${Fail.length} Invalid or already booked AWBs`);
+            }
+
+            setTimeout(() => setSuccess(false), 6000);
         } else {
-          setError(`${Fail.length} Invalid or already booked AWBs`);
+            setError('Invalid provider selected.');
         }
-        setTimeout(() => setSuccess(false), 6000);
-      } else {
-        setError('Invalid provider selected.');
-      }
     } catch (err) {
-      console.error('Error:', err);
+        console.error('Error:', err);
+        
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
+
+// handles the copy to clipboard function
   const handleCopyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      toast({
+      toasts({
         title: "Copied to clipboard",
         status: "success",
         duration: 2000,
@@ -152,6 +193,7 @@ const Relabel = () => {
       console.error('Failed to copy:', err);
     });
   };
+
 
   return (
     <Flex flexDir='row'>
@@ -239,55 +281,116 @@ const Relabel = () => {
             }
           </Grid>
         </Flex>
-        <Flex w='100%' p={3} flexDir='col' justifyContent='space-around' alignItems='center' mt={5} >
-          <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%'>
-            {(successfulAWBs.length > 0 || failedAWBs.length > 0) &&
-              <GridItem backgroundColor='gray.700' p={4} borderRadius='10'>
-                {successfulAWBs.length > 0 && (
-                  <GridItem>
-                    <Heading size='md' mb={5} textAlign='center'>Successful : {successfulAWBs.length}</Heading>
-                    <Grid templateColumns='repeat(1, 1fr)'  >
-                      {successfulAWBs.map((awb, index) => (
-                        <Flex key={index} mb={2} justifyContent="center" alignItems="center">
-                          {provider === 'EMIRATES' && (<Text mr={2}>{awb.FROM_AWB} → {awb.EMIRATES}</Text>)}
-                          {provider === 'CLEVY' && <Text mr={2}>{awb.FROM_AWB} → {awb.CLEVY_AWB}</Text>}
-                          {provider === 'ORANGEDS' && <Text mr={2}>{awb.FROM_AWB} → {awb.ORANGEDS}</Text>}
-                          {provider === 'ASENDIA' && <Text mr={2}>{awb.FROM_AWB} → {awb.ASENDIA_AWB}</Text>}
-                        </Flex>
-                      ))}
-                    </Grid>
-                    <Flex justifyContent="center" mt={4}>
-                      {provider === 'EMIRATES' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.EMIRATES}`).join('\n'))}>
-                        Copy All
-                      </Button>}
-                      {provider === 'CLEVY' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.CLEVY_AWB}`).join('\n'))}>
-                        Copy All
-                      </Button>}
-                      {provider === 'ORANGEDS' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ORANGEDS}`).join('\n'))}>
-                        Copy All
-                      </Button>}
-                      {provider === 'ASENDIA' && <Button size="sm" onClick={() => handleCopyToClipboard(successfulAWBs.map(awb => `${awb.FROM_AWB} → ${awb.ASENDIA_AWB}`).join('\n'))}>
-                        Copy All
-                      </Button>}
-                    </Flex>
-                  </GridItem>
-                )}
-                {failedAWBs.length > 0 && (
-                  <GridItem>
-                    <Heading size='md' mb={5} textAlign='center'>Failed : {failedAWBs.length}</Heading>
-                    <Grid templateColumns='repeat(6, 1fr)' gap={1}>
-                      {failedAWBs.map((awb, index) => (
-                        <Tag key={index} mr={2} mb={2} justifyContent='space-between' size="md" variant="solid" colorScheme="red">
-                          <TagLabel>{awb}</TagLabel>
-                        </Tag>
-                      ))}
-                    </Grid>
-                  </GridItem>
-                )}
-              </GridItem>
-            }
-          </Grid>
+        <Flex w="100%" p={3} flexDir="col" justifyContent="space-around" alignItems="center" mt={5}>
+  <Grid templateColumns="repeat(1,1fr)" gap={9} w="100%">
+    {(successfulAWBs.length > 0 || failedAWBs.length > 0) && (
+      <GridItem backgroundColor="gray.700" p={4} borderRadius="10">
+        {successfulAWBs.length > 0 && (
+          <GridItem>
+            <Heading size="md" mb={5} textAlign="center">
+              Successful: {successfulAWBs.length}
+            </Heading>
+            <Grid templateColumns="repeat(1, 1fr)">
+              {successfulAWBs.map((awb, index) => (
+                <Flex key={index} mb={2} justifyContent="center" alignItems="center">
+                  {provider === 'EMIRATES' && (
+                    <Text mr={2}>
+                      {awb.FROM_AWB} → {awb.EMIRATES}
+                    </Text>
+                  )}
+                  {provider === 'CLEVY' && (
+                    <Text mr={2}>
+                      {awb.FROM_AWB} → {awb.CLEVY_AWB}
+                    </Text>
+                  )}
+                  {provider === 'ORANGEDS' && (
+                    <Text mr={2}>
+                      {awb.FROM_AWB} → {awb.ORANGEDS}
+                    </Text>
+                  )}
+                  {provider === 'ASENDIA' && (
+                    <Text mr={2}>
+                      {awb.FROM_AWB} → {awb.ASENDIA_AWB}
+                    </Text>
+                  )}
+                {/* added New Xindus provider */}
+                  {provider === 'XINDUS' && (
+                    <Text mr={2}>
+                      {awb.LEXSHIP_AWB} → {awb.XINDUS_AWB}
+                    </Text>
+                  )}
+                </Flex>
+              ))}
+            </Grid>
+          </GridItem>
+        )}
+        {failedAWBs.length > 0 && (
+          <GridItem>
+            <Heading size="md" mb={5} textAlign="center">
+              Failed: {failedAWBs.length}
+            </Heading>
+            <Box>
+              {failedAWBs.map((item, index) => (
+                <Box
+                  key={index}
+                  mb={3}
+                  p={3}
+                  borderRadius="md"
+                  bg="red.600"
+                  color="white"
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Text fontWeight="bold">{item.awb}</Text>
+                  <Text fontSize="10pt" fontWeight="bold" mx={3}>
+                    {item.message}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          </GridItem>
+        )}
+        {/* Copy All Button for both success and failure */}
+        <Flex justifyContent="center" mt={4}>
+          <Button
+            size="sm"
+            onClick={() => {
+              const successText = successfulAWBs.map(awb => {
+                switch (provider) {
+                  case 'EMIRATES':
+                    return `${awb.FROM_AWB} → ${awb.EMIRATES}`;
+                  case 'CLEVY':
+                    return `${awb.FROM_AWB} → ${awb.CLEVY_AWB}`;
+                  case 'ORANGEDS':
+                    return `${awb.FROM_AWB} → ${awb.ORANGEDS}`;
+                  case 'ASENDIA':
+                    return `${awb.FROM_AWB} → ${awb.ASENDIA_AWB}`;
+                  case 'XINDUS':
+                    return `${awb.LEXSHIP_AWB} → ${awb.XINDUS_AWB}`;
+                  default:
+                    return `${awb.FROM_AWB} → Unknown`;
+                }
+              }).join('\n');
+
+              const failureText = failedAWBs
+                .map(item => `${item.awb}: ${item.message}`)
+                .join('\n');
+
+              const combinedText = [successText, failureText]
+                .filter(Boolean)
+                .join('\n\n');
+              handleCopyToClipboard(combinedText);
+            }}
+          >
+            Copy All
+          </Button>
         </Flex>
+      </GridItem>
+    )}
+  </Grid>
+</Flex>
+
 
         <Modal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)}>
           <ModalOverlay />

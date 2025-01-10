@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Alert, AlertIcon, Button, Center, Divider, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip, Progress } from '@chakra-ui/react';
-import SideNav from '../components/SideNav';
-import { FaArrowRight, FaBan } from 'react-icons/fa';
-import axios from 'axios';
-import { io } from 'socket.io-client';
-
+import SideNav from "../components/SideNav";
+import axios from "axios";
+import { Alert, AlertIcon, Button, Center, Divider, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Progress, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { FaArrowRight, FaBan } from "react-icons/fa";
+import { io } from "socket.io-client";
 
 const PDFtotifPage = () => {
   const [tags, setTags] = useState([]);
