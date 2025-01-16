@@ -75,7 +75,13 @@ const fetchData = async (awbNumbers) => {
       setIsSearching(false);
     }
   };
-  
+
+const handleEnter = (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault(); 
+    handleSearch(); 
+  }
+};
 
   
   const handleEdit = (index) => {
@@ -134,6 +140,7 @@ const fetchData = async (awbNumbers) => {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleEnter}
               className="flex-1 p-2 border rounded-lg"
               placeholder="Enter AWB Numbers (comma separated)"
             />
