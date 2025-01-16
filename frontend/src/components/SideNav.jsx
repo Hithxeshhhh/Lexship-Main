@@ -80,7 +80,7 @@ export default function Sidebar() {
                     </Flex>
                 </Flex>
                 <Divider display={navSize === "small" ? "none" : "flex"} mt='2vh' transition='all ease 0.4s' />
-                <NavItem navSize={navSize} icon={FiEdit} title="Pan Update" link='dashboard' active={lastPart === 'dashboard'} />
+                <NavItem navSize={navSize} icon={FiEdit} title="KYC Update" link='dashboard' active={lastPart === 'dashboard'} />
                 <NavItem navSize={navSize} icon={SiConvertio} title="PDF to TIF" link="pdftotif" active={lastPart === 'pdftotif'} />
                 <NavItem navSize={navSize} icon={MdLabelOutline} title="Relabel" link='relabel' active={lastPart === 'relabel'} />
                 <NavItem navSize={navSize} icon={GrStatusGood} title="Status Update" link='statusupdate' active={lastPart === 'statusupdate'} />
