@@ -75,7 +75,7 @@ export default function Sidebar() {
                 <Flex mt={10} align="center">
                     <Avatar size={navSize === 'small' ? 'sm' : 'lg'} src={avatar} transition='all ease 0.1s' />
                     <Flex flexDir="column" ml={4} display={navSize === "small" ? "none" : "flex"} transition='all ease 0.4s'>
-                        <Heading as="h1" size='sm' transition='all ease 0.4s'>Sarthak Bindal</Heading>
+                        <Heading as="h1" size='sm' transition='all ease 0.4s'>Hithesh</Heading>
                         <Text color="gray" transition='all ease 0.4s'>Admin</Text>
                     </Flex>
                 </Flex>
