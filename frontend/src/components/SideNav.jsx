@@ -2,7 +2,7 @@ import NavItem from "../components/NavItem";
 import avatar from "../assets/avatar1.png";
 import logo from "../assets/lexship.png";
 import { useState } from "react";
-import { FaHistory } from "react-icons/fa";
+import { FaHistory, FaLocationArrow } from "react-icons/fa";
 import { GrStatusGood } from "react-icons/gr";
 import { MdLabelOutline } from "react-icons/md";
 import { RiShutDownLine } from "react-icons/ri";
@@ -84,6 +84,7 @@ export default function Sidebar() {
                 <NavItem navSize={navSize} icon={SiConvertio} title="PDF to TIF" link="pdftotif" active={lastPart === 'pdftotif'} />
                 <NavItem navSize={navSize} icon={MdLabelOutline} title="Relabel" link='relabel' active={lastPart === 'relabel'} />
                 <NavItem navSize={navSize} icon={GrStatusGood} title="Status Update" link='statusupdate' active={lastPart === 'statusupdate'} />
+                <NavItem navSize={navSize} icon={FaLocationArrow} title="Tracking" link='tracking' active={lastPart === 'tracking'} />
                 <NavItem navSize={navSize} icon={FaHistory} title="History" />
                 <NavItem navSize={navSize} icon={FiBriefcase} title="Reports" />
                 <NavItem navSize={navSize} icon={FiSettings} title="Settings" />

@@ -9,6 +9,7 @@ const InvoicePage = lazy(() => import('./pages/InvoicePage.jsx'));
 const PDFtotifPage = lazy(() => import('./pages/PdftoTif.jsx'));
 const RelabelPage = lazy(() => import('./pages/RelabelPage.jsx'));
 const StatusUpdatePage = lazy(() => import('./pages/StatusUpdatePage.jsx'));
+const TrackingPage = lazy(() => import('./pages/Tracking.jsx'));
 
 const ProtectedRoute = ({ element }) => {
   const token = localStorage.getItem('token');
@@ -27,6 +28,7 @@ function App() {
           <Route path='/pdftotif' element={<ProtectedRoute element={<PDFtotifPage />} />} />
           <Route path='/relabel' element={<ProtectedRoute element={<RelabelPage />} />} />
           <Route path='/statusupdate' element={<ProtectedRoute element={<StatusUpdatePage />} />} />
+          <Route path='/tracking' element={<ProtectedRoute element={<TrackingPage />} />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Flex, Heading, Input, Button, InputGroup, InputRightElement, Text, Select, Grid, GridItem, Tag, TagLabel, TagCloseButton, Divider, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
-import SideNav from '../components/SideNav';
-import { FaArrowRight } from 'react-icons/fa';
-import { statusData } from '../utils/data.json'
-import instance from '../utils/AxiosInstance'
+import SideNav from "../components/SideNav";
+import instance from "../utils/AxiosInstance";
+import { Alert, AlertIcon, Button, Divider, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Select, Spinner, Tag, TagCloseButton, TagLabel, Text } from "@chakra-ui/react";
+import { useState } from "react";
+import { FaArrowRight } from "react-icons/fa";
+import { statusData } from "../utils/data.json";
+
 const StatusUpdatePage = () => {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -11,23 +12,33 @@ const StatusUpdatePage = () => {
   const [status, sethandleStatus] = useState('')
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const [emailId, setEmailId] = useState('');
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false);
-  const handleResetAll =()=>{
+
+  const handleResetAll = () => {
     setTags([]);
-    setError('')
-  }
+    setError('');
+    sethandleStatus('');
+    setDate('');
+    setTime('');
+    setEmailId('');
+  };
+
   const handleStatus = (e) => {
     sethandleStatus(e.target.value);
   };
+
   const handleTagRemove = (tagToRemove) => {
     const updatedTags = tags.filter((tag) => tag !== tagToRemove);
     setTags(updatedTags);
   };
+
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
     setError('');
   };
+
   const handleInputKeyDown = (e) => {
     if (e.key === 'Enter' && inputValue.trim() !== '') {
       const trimmedInput = inputValue.trim();
@@ -49,6 +60,7 @@ const StatusUpdatePage = () => {
       setInputValue('');
     }
   };
+
   const handleEnter = (e) => {
     if (e && inputValue.trim() !== '') {
       const trimmedInput = inputValue.trim();
@@ -70,6 +82,7 @@ const StatusUpdatePage = () => {
       setInputValue('');
     }
   }
+
   const handleSubmit = async () => {
     if (!status) {
       setError('Please select status');
@@ -83,16 +96,20 @@ const StatusUpdatePage = () => {
       setError('Please enter time')
       return;
     }
+    if (!emailId) {
+      setError('Please enter email ID')
+      return;
+    }
     try {
       let url = ''
-      if(import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_LEX_INITIAL_PROD
+      if (import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_LEX_INITIAL_PROD
       else url = import.meta.env.VITE_LEX_INITIAL_DEV
       setLoading(true);
       const data = statusData.find(item => item.value === status);
-      console.log(data.code, date, time)
-      console.log(`${url}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`)
+      console.log(data.code, date, time, emailId)
+      console.log(`${url}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}&CreatedBy=${emailId}`)
       const res = await instance.post(
-        `${url}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}`,
+        `${url}/api/awb/status/update?statusCode=${data.code}&CreatedDate=${date}&CreatedTime=${time}&CreatedBy=${emailId}`,
         {
           AWBs: tags,
         }
@@ -106,9 +123,10 @@ const StatusUpdatePage = () => {
     catch (err) { console.error('Error:', err); }
     finally { setLoading(false); }
   };
-  const currentDate = new Date().toISOString().split('T')[0];
-  return (
 
+  const currentDate = new Date().toISOString().split('T')[0];
+
+  return (
     <Flex flexDir='row'>
       <SideNav />
       <Flex w='100%' align='center' flexDir='column' p='1%' ml='30vh'>
@@ -121,8 +139,7 @@ const StatusUpdatePage = () => {
         <Heading size='lg' textAlign='center' color='gray.400'>Status Update</Heading>
         <Flex flexWrap='wrap' w='70vh' mt='2vh'>
           <Heading fontSize='18px' fontWeight='500' color='gray.300' mr={3}>AWB numbers:</Heading>
-          <InputGroup size='md' mt={2}
-            mb={2}>
+          <InputGroup size='md' mt={2} mb={2}>
             <Input
               placeholder="Enter AWB numbers separated by commas"
               value={inputValue}
@@ -180,8 +197,18 @@ const StatusUpdatePage = () => {
                     onChange={(e) => setTime(e.target.value)}
                   />
                 </Flex>
+                <Flex flexDir='row' mt={5} gap={0} alignItems={'center'} width='49.5%' >
+                  <Heading size='sm' fontWeight={400} ml={-2.5}>Updated By:</Heading>
+                  <Input
+                    placeholder='Enter Email ID'
+                    type='email'
+                    value={emailId}
+                    onChange={(e) => setEmailId(e.target.value)}
+                    required
+                  />
+                </Flex>
                 <Flex alignItems={'center'} justifyContent={'center'} mt={10} gap={5}>
-                <Button onClick={handleResetAll}>Reset All</Button>
+                  <Button onClick={handleResetAll}>Reset All</Button>
                   {(<Button colorScheme='teal' isLoading={loading} onClick={handleSubmit}>{loading ? <Spinner size='sm' color='white' /> : 'Submit Status'}</Button>)}
                 </Flex>
               </GridItem>
@@ -192,4 +219,5 @@ const StatusUpdatePage = () => {
     </Flex>
   );
 };
+
 export default StatusUpdatePage;

@@ -319,6 +319,11 @@ const Relabel = () => {
                       {awb.LEXSHIP_AWB} → {awb.XINDUS_AWB}
                     </Text>
                   )}
+                  {provider === 'RSA' && (
+                    <Text mr={2}>
+                      {awb.FROM_AWB} → {awb.RSA_AWB}
+                    </Text>
+                  )}
                 </Flex>
               ))}
             </Grid>
@@ -368,6 +373,8 @@ const Relabel = () => {
                     return `${awb.FROM_AWB} → ${awb.ASENDIA_AWB}`;
                   case 'XINDUS':
                     return `${awb.LEXSHIP_AWB} → ${awb.XINDUS_AWB}`;
+                  case 'RSA':
+                    return `${awb.FROM_AWB} → ${awb.RSA_AWB}`;
                   default:
                     return `${awb.FROM_AWB} → Unknown`;
                 }
