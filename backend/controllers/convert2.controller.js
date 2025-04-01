@@ -74,13 +74,26 @@ async function combineTiffsBatch(
           console.error(`Folder ${pdfFolderPath} does not exist.`);
           return;
         }
-        //added new method
-        //replaced .convert with magick convert,works on imageMagick version 7 and above
+
         const multiPageTiffPath = path.join(outputFolder, `${fileName}.tif`);
         await new Promise((resolve, reject) => {
-          exec(
-            `magick convert ${path.join(pdfFolderPath, "*.tif")} -compress LZW -density 200 -quality 100 -sharpen 0x1.0 -extent 0x0 -append ${multiPageTiffPath}`,
-            (err, stdout, stderr) => {
+          im.convert(
+            [
+              path.join(pdfFolderPath, "*.tif"),
+              "-compress",
+              "LZW",
+              "-density",
+              "200",
+              "-quality",
+              "100",
+              "-sharpen",
+              "0x1.0",
+              "-extent",
+              "0x0",
+              "-append",
+              multiPageTiffPath,
+            ],
+            (err, stdout) => {
               if (err) {
                 console.error(
                   `Error combining TIFF files for ${pdfFile}:`,
@@ -113,7 +126,6 @@ async function combineTiffsBatch(
   await new Promise((resolve) => setTimeout(resolve, 3000));
   return completedTasks;
 }
-
 
 async function processBatch(
   pdfFiles,
