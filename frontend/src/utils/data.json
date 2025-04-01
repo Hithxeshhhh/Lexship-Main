@@ -210,9 +210,9 @@
       "name": "XINDUS", 
       "api": "api/lexship/xindus" 
     },
-    {  
+     {  
       "name": "RSA", 
-      "api": "api/lexship/xindus" 
+      "api": "api/map/post11/rsa" 
     }
   ]
 }
