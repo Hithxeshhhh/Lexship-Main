@@ -196,7 +196,7 @@ const Relabel = () => {
 
 
   return (
-    <Flex flexDir='row'>
+    <Flex flexDir='row' className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
       <SideNav />
       <Flex w='100%' align='center' flexDir='column' p='1%' ml='30vh'>
         {success && (
@@ -205,7 +205,7 @@ const Relabel = () => {
             AWBs relabeled successfully
           </Alert>
         )}
-        <Heading size='lg' textAlign='center' color='gray.400'>Relabel</Heading>
+        <Heading size='lg' textAlign='center' className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500">Relabel</Heading>
         <Flex flexWrap='wrap' w='70vh' mt='2vh'>
           <Heading fontSize='18px' fontWeight='500' color='gray.300' mr={3}>AWB numbers:</Heading>
           <InputGroup size='md' mt={2} mb={2}>
@@ -240,7 +240,7 @@ const Relabel = () => {
         <Flex w='100%' flexDir='col' p={3} justifyContent='center' alignItems='center' mt={5}>
           <Grid templateColumns='repeat(1,1fr)' gap={9} w='100%'>
             {(tags.length !== 0) &&
-              <GridItem backgroundColor='gray.700' p={5} borderRadius='10'>
+              <GridItem className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-gray-800" p={5} borderRadius='10'>
                 <Heading size='md' mb={3} textAlign='center'>Input AWBs : {tags.length}</Heading>
                 <Grid templateColumns='repeat(6, 1fr)' gap={1}>
                   {tags.map((tag, index) => (
@@ -284,7 +284,7 @@ const Relabel = () => {
         <Flex w="100%" p={3} flexDir="col" justifyContent="space-around" alignItems="center" mt={5}>
   <Grid templateColumns="repeat(1,1fr)" gap={9} w="100%">
     {(successfulAWBs.length > 0 || failedAWBs.length > 0) && (
-      <GridItem backgroundColor="gray.700" p={4} borderRadius="10">
+      <GridItem className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-gray-800" p={4} borderRadius="10">
         {successfulAWBs.length > 0 && (
           <GridItem>
             <Heading size="md" mb={5} textAlign="center">
@@ -317,6 +317,11 @@ const Relabel = () => {
                   {provider === 'XINDUS' && (
                     <Text mr={2}>
                       {awb.LEXSHIP_AWB} → {awb.XINDUS_AWB}
+                    </Text>
+                  )}
+                  {provider === 'RSA' && (
+                    <Text mr={2}>
+                      {awb.FROM_AWB} → {awb.RSA_AWB}
                     </Text>
                   )}
                 </Flex>
@@ -368,6 +373,8 @@ const Relabel = () => {
                     return `${awb.FROM_AWB} → ${awb.ASENDIA_AWB}`;
                   case 'XINDUS':
                     return `${awb.LEXSHIP_AWB} → ${awb.XINDUS_AWB}`;
+                  case 'RSA':
+                    return `${awb.FROM_AWB} → ${awb.RSA_AWB}`;
                   default:
                     return `${awb.FROM_AWB} → Unknown`;
                 }

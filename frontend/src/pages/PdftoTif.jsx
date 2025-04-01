@@ -1,8 +1,9 @@
+import CSVReader from "react-csv-reader";
 import SideNav from "../components/SideNav";
 import axios from "axios";
-import { Alert, AlertIcon, Button, Center, Divider, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Progress, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Center, Divider, Flex, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, Progress, Select, Spinner, Tag, TagCloseButton, TagLabel, Text, Tooltip } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaArrowRight, FaBan } from "react-icons/fa";
+import { FaArrowRight, FaBan, FaUpload } from "react-icons/fa";
 import { io } from "socket.io-client";
 
 const PDFtotifPage = () => {
@@ -15,11 +16,13 @@ const PDFtotifPage = () => {
   const [failedAWBs, setFailedAWBs] = useState([]);
   const [conversionType, setConversionType] = useState('');
   const [progress, setProgress] = useState(0);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
 
   let url = '';
   if (import.meta.env.VITE_ENV === 'prod') url = import.meta.env.VITE_BACKEND_PROD
   else if (import.meta.env.VITE_ENV === 'dev') url = import.meta.env.VITE_BACKEND_DEV
   else url = import.meta.env.VITE_BACKEND_LOCAL
+
   useEffect(() => {
     const socket = io(url); // replace with your backend URL
 
@@ -46,7 +49,6 @@ const PDFtotifPage = () => {
     };
   }, []);
 
-
   const handleConversionTypeChange = (e) => {
     setConversionType(e.target.value);
   };
@@ -65,18 +67,15 @@ const PDFtotifPage = () => {
       if (invalidTags.length === 0) {
         const duplicates = newTags.filter(tag => tags.includes(tag));
         if (duplicates.length === 0) {
-
           setTags([...tags, ...uniqueNewTags]);
         } else {
           setError('One or more AWB numbers already exist.');
           setTimeout(() => setError(''), 3000);
         }
-        setTags([...tags, ...uniqueNewTags]);
       } else {
         setError('Invalid AWB format.');
         setTimeout(() => setError(''), 3000);
       }
-
       setInputValue('');
     }
   };
@@ -94,7 +93,6 @@ const PDFtotifPage = () => {
         } else {
           setError('One or more AWB numbers already exist.');
         }
-        setTags([...tags, ...uniqueNewTags]);
       } else {
         setError('Invalid AWB format.');
       }
@@ -126,7 +124,7 @@ const PDFtotifPage = () => {
     }
     if (tags.length > 100) {
       setTags('');
-      setError('Please enter upto 100 AWBs only!');
+      setError('Please enter up to 100 AWBs only!');
       setTimeout(() => setError(''), 3000);
     } else {
       try {
@@ -171,7 +169,7 @@ const PDFtotifPage = () => {
   };
 
   return (
-    <Flex flexDir="row">
+    <Flex flexDir="row" className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
       <SideNav />
       <Flex w="80%" align="center" flexDir="column" p="1%" ml="30vh">
         {success && (
@@ -186,33 +184,32 @@ const PDFtotifPage = () => {
             {error}
           </Alert>
         )}
-        <Heading size="lg" color="gray.400">PDF to TIF</Heading>
+        <Heading className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500" >PDF to TIF</Heading>
         <Flex flexWrap="wrap" w="70vh" mt="2vh">
-          <Heading fontSize="18px" fontWeight="500" color="gray.300" mr={3}>AWB numbers:</Heading>
-          <InputGroup size="md" mt={2} mb={2}>
-            <Input
-              placeholder="Enter AWB numbers separated by commas"
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyDown}
-              variant={error ? "filled" : "outline"}
-              size="md"
-              border="1px"
-              borderColor={error ? "red.300" : "gray.600"}
-            />
-            <InputRightElement>
-              <Button onClick={handleEnter}>
-                <FaArrowRight />
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          <Text color="red.400" fontSize="sm" fontWeight={400} >*Please enter up to 100 AWBs at a time.</Text>
-          
-        </Flex>
+  <Heading fontSize="18px" fontWeight="500" color="gray.300" mr={3}>AWB numbers:</Heading>
+  <InputGroup size="md" mt={2} mb={2}>
+    <Input
+      placeholder="Enter AWB numbers separated by commas"
+      value={inputValue}
+      onChange={handleInputChange}
+      onKeyDown={handleInputKeyDown}
+      variant={error ? "filled" : "outline"}
+      size="md"
+      border="1px"
+      borderColor={error ? "red.300" : "gray.600"}
+    />
+    <InputRightElement>
+      <Button onClick={handleEnter}>
+        <FaArrowRight />
+      </Button>
+    </InputRightElement>
+  </InputGroup>
+  <Text color="red.400" fontSize="sm" fontWeight={400} >*Please enter up to 100 AWBs at a time.</Text>
+</Flex>
         <Flex w="100%" flexDir="col" p={3} justifyContent="center" alignItems="center" mt={5}>
           <Grid templateColumns="repeat(1,1fr)" gap={9} w="100%">
             {tags.length !== 0 && (
-              <GridItem backgroundColor="gray.700" p={5} borderRadius="10">
+              <GridItem className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-gray-800" p={5} borderRadius="10">
                 <Heading size="md" mb={3} textAlign="center">Input AWBs : {tags.length}</Heading>
                 <Grid templateColumns="repeat(6, 1fr)" gap={1}>
                   {tags.map((tag, index) => (
@@ -250,10 +247,10 @@ const PDFtotifPage = () => {
             )}
           </Grid>
         </Flex>
-        <Flex w="100%" p={3} flexDir="col" justifyContent="space-around" alignItems="center" mt={5}>
+        <Flex w="100%" flexDir="col" p={3} justifyContent="space-around" alignItems="center" mt={5}>
           <Grid templateColumns="repeat(1,1fr)" gap={9} w="100%">
             {(successfulAWBs.length > 0 || failedAWBs.length > 0) && (
-              <GridItem backgroundColor="gray.700" p={4} borderRadius="10">
+              <GridItem className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-gray-800" p={4} borderRadius="10">
                 {successfulAWBs.length > 0 && (
                   <GridItem>
                     <Heading size="md" mb={5} textAlign="center">Successfully converted : {successfulAWBs.length}</Heading>
