@@ -298,10 +298,10 @@ const Tracking = () => {
           {trackingIds.length > 0 && (
   <Box mt={5} color="white">
     <Heading size="md" mb={3}>Tracking IDs:</Heading>
-    <Grid templateColumns="repeat(auto-fit, minmax(150px, 1fr))" gap={2}>
+    <Grid templateColumns="repeat(auto-fit, minmax(100px, 1fr))" gap={2}>
       {trackingIds.map((data, index) => (
         <Tag key={index} size="md" variant="solid" colorScheme="teal">
-          <TagLabel>{data.tag} → {data.trackingId}</TagLabel>
+          <TagLabel>{data.trackingId}</TagLabel>
         </Tag>
       ))}
     </Grid>
