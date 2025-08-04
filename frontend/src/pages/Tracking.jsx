@@ -94,87 +94,128 @@ const Tracking = () => {
   
     try {
       setLoading(true);
-      setError(""); // Clear previous errors
+      setError("");
+      setTrackingIds([]);
   
-      if (provider !== 'EMIRATES' && provider !== 'ASENDIA') {
-        setError('Invalid provider selected. Please choose EMIRATES or ASENDIA.');
-        setLoading(false);
+      if (!provider) {
+        setError('Please select a provider.');
+        return;
+      }
+  
+      if (provider !== 'EMIRATES' && provider !== 'ASENDIA' && provider !== 'RSA') {
+        setError('Invalid provider selected. Please choose EMIRATES, ASENDIA, or RSA.');
+        return;
+      }
+  
+      if (tags.length === 0) {
+        setError('Please enter at least one AWB number.');
         return;
       }
   
       const url = `${url_lex}/api/lex/tracking/emirates/individual`;
       const payload = { VENDOR: provider, AWB: tags };
   
-      console.log("Request URL:", url);
-      console.log("Request Payload:", JSON.stringify(payload));
-  
       const res = await instance.post(url, payload, {
         headers: { 'Authorization': `Bearer ${bearerToken}` }
       });
   
-      console.log("Raw API Response:", res.data);
-  
       let responseData = res.data;
   
-      if (typeof responseData === "string") {
+      // Handle RSA response
+      if (provider === 'RSA') {
         try {
-          // 🔹 Extract only valid JSON from response
-          let jsonMatches = responseData.match(/\{.*?\}|\[.*?\]/g);
+          const responseString = typeof responseData === 'string' 
+            ? responseData 
+            : JSON.stringify(responseData);
+      
+          const matches = responseString.split('RAS VENDOR FINAL STATUS Before update Customer Table');
+          const lastPart = matches[matches.length - 1];
           
-          if (!jsonMatches) {
-            throw new Error("No valid JSON found in response");
+          const awbMatch = lastPart.match(/\[(.*?)\](?=[^[]*$)/);
+          
+          if (awbMatch) {
+            const awbArray = JSON.parse(awbMatch[0]);
+            // Map the tracking numbers with their input tags
+            const trackingNumbers = awbArray
+              .filter(item => item && item.full_awb_number)
+              .map((item, index) => ({
+                tag: tags[index] || 'RSA', // Use input tag or default to 'RSA'
+                trackingId: item.full_awb_number
+              }));
+      
+            if (trackingNumbers.length > 0) {
+              setTrackingIds(trackingNumbers);
+              
+              toast({
+                title: "AWBs tracked successfully",
+                description: `Tracked ${trackingNumbers.length} AWB(s)`,
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+              });
+              
+              setSuccess(true);
+              setTimeout(() => setSuccess(false), 5000);
+            } else {
+              setError("No valid tracking numbers found in the response");
+              return;
+            }
+          } else {
+            setError("Could not find tracking numbers in the response");
+            return;
+          }
+        } catch (parseError) {
+          console.error("Error processing RSA response:", parseError);
+          setError("Failed to process tracking numbers");
+          return;
+        }
+      } else {
+        // Handle EMIRATES and ASENDIA
+        try {
+          const parsedData = Array.isArray(responseData) 
+            ? responseData 
+            : typeof responseData === 'string' 
+              ? JSON.parse(responseData)
+              : null;
+  
+          if (!parsedData) {
+            throw new Error("Invalid response format");
           }
   
-          let parsedResponses = jsonMatches.map(jsonStr => {
-            try {
-              return JSON.parse(jsonStr);
-            } catch (error) {
-              console.error("Skipping invalid JSON:", jsonStr, error);
-              return null;
-            }
-          }).filter(Boolean); // Remove any failed JSON parses
+          const trackingNumbers = parsedData
+            .filter(item => item && item.full_awb_number)
+            .map((item, index) => ({
+              tag: tags[index] || provider,
+              trackingId: item.full_awb_number
+            }));
   
-          console.log("Extracted JSON Objects:", parsedResponses);
-  
-          responseData = parsedResponses;
-  
+          if (trackingNumbers.length > 0) {
+            setTrackingIds(trackingNumbers);
+            toast({
+              title: "AWBs tracked successfully",
+              description: `Tracked ${trackingNumbers.length} AWB(s)`,
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+            });
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 5000);
+          } else {
+            setError("No tracking numbers found in response");
+            return;
+          }
         } catch (parseError) {
           console.error("JSON Parsing Error:", parseError);
-          setError("Invalid response format from server.");
-          setLoading(false);
+          setError("Failed to parse server response");
           return;
         }
       }
   
-      console.log("Parsed Response:", responseData);
-  
-      // 🔹 Extract tracking IDs and shipment details correctly
-      let allTrackingIds = responseData.flatMap((obj) => obj.trackingIds || []);
-      let shipmentDetails = responseData.filter((obj) => Array.isArray(obj)).flat();
-  
-      console.log("Tracking IDs:", allTrackingIds);
-      console.log("Shipment Details:", shipmentDetails);
-  
-      if (allTrackingIds.length > 0) {
-        setTrackingIds(allTrackingIds);
-        toast({
-          title: "AWBs tracked successfully",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 5000);
-      } else {
-        console.error("Unexpected API response structure:", responseData);
-        setError("Unexpected API response format.");
-      }
-  
     } catch (err) {
       console.error("Error:", err);
-      setError("An error occurred while processing your request.");
+      setError(err.message || "An error occurred while processing your request");
       toast({
-        title: "An error occurred",
+        title: "Error",
         description: err.message || "Something went wrong",
         status: "error",
         duration: 5000,
@@ -183,11 +224,7 @@ const Tracking = () => {
     } finally {
       setLoading(false);
     }
-  };
-  
-  
-  
-  
+  }; 
   
   return (
     <Flex flexDir='row' className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
@@ -245,6 +282,7 @@ const Tracking = () => {
                   <Select placeholder='Select Type' onChange={handleProvider}>
                     <option value="EMIRATES">EMIRATES</option>
                     <option value="ASENDIA">ASENDIA</option>
+                    <option value="RSA">RSA</option>
                   </Select>
                 </Flex>
                 <Flex alignItems={'center'} justifyContent={'center'} mt={10} gap={5}>
@@ -261,16 +299,14 @@ const Tracking = () => {
   <Box mt={5} color="white">
     <Heading size="md" mb={3}>Tracking IDs:</Heading>
     <Grid templateColumns="repeat(auto-fit, minmax(150px, 1fr))" gap={2}>
-      {trackingIds.flat().map((id, index) => (
+      {trackingIds.map((data, index) => (
         <Tag key={index} size="md" variant="solid" colorScheme="teal">
-          <TagLabel>{tags[index % tags.length]} → {id}</TagLabel>
+          <TagLabel>{data.tag} → {data.trackingId}</TagLabel>
         </Tag>
       ))}
     </Grid>
   </Box>
 )}
-
-
       </Flex>
     </Flex>
  );

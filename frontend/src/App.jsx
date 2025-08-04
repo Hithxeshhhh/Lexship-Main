@@ -14,6 +14,7 @@ const LexZohoSyncPage = lazy(() => import('./pages/lexZohoSync.jsx'));
 const SettingsPage = lazy(() => import('./pages/Settings.jsx'));
 const TrackingPage = lazy(() => import('./pages/Tracking.jsx'));
 const SamplePage = lazy(() => import('./pages/Sample.jsx'));
+const ManifestPage = lazy(() => import('./pages/ManifestPage.jsx'));
 
 const ProtectedRoute = ({ element }) => {
   const token = localStorage.getItem('token');
@@ -32,6 +33,7 @@ function App() {
           <Route path='/pdftotif' element={<ProtectedRoute element={<PDFtotifPage />} />} />
           <Route path='/relabel' element={<ProtectedRoute element={<RelabelPage />} />} />
           <Route path='/statusupdate' element={<ProtectedRoute element={<StatusUpdatePage />} />} />
+          <Route path='/manifest' element={<ProtectedRoute element={<ManifestPage />} />} />
           <Route path='/lex-zoho-sync' element={<ProtectedRoute element={<LexZohoSyncPage />} />} />
           <Route path='/settings' element={<ProtectedRoute element={<SettingsPage />} />} />
           <Route path='/tracking' element={<ProtectedRoute element={<TrackingPage />} />} />

@@ -63,6 +63,14 @@ const PDFtotifPage = () => {
       const trimmedInput = inputValue.trim();
       const newTags = trimmedInput.split(',').map(tag => tag.trim());
       const uniqueNewTags = newTags.filter(tag => !tags.includes(tag));
+      
+      // Check if adding new tags would exceed the 100 AWB limit
+      if (tags.length + uniqueNewTags.length > 100) {
+        setError('Cannot add more than 100 AWB numbers.');
+        setTimeout(() => setError(''), 3000);
+        return;
+      }
+      
       const invalidTags = uniqueNewTags.filter(tag => !/^[a-zA-Z0-9]+$/.test(tag));
       if (invalidTags.length === 0) {
         const duplicates = newTags.filter(tag => tags.includes(tag));
@@ -85,6 +93,14 @@ const PDFtotifPage = () => {
       const trimmedInput = inputValue.trim();
       const newTags = trimmedInput.split(',').map(tag => tag.trim());
       const uniqueNewTags = newTags.filter(tag => !tags.includes(tag));
+      
+      // Check if adding new tags would exceed the 100 AWB limit
+      if (tags.length + uniqueNewTags.length > 100) {
+        setError('Cannot add more than 100 AWB numbers.');
+        setTimeout(() => setError(''), 3000);
+        return;
+      }
+      
       const invalidTags = uniqueNewTags.filter(tag => !/^[a-zA-Z0-9]+$/.test(tag));
       if (invalidTags.length === 0) {
         const duplicates = newTags.filter(tag => tags.includes(tag));
@@ -92,9 +108,11 @@ const PDFtotifPage = () => {
           setTags([...tags, ...uniqueNewTags]);
         } else {
           setError('One or more AWB numbers already exist.');
+          setTimeout(() => setError(''), 3000);
         }
       } else {
         setError('Invalid AWB format.');
+        setTimeout(() => setError(''), 3000);
       }
       setInputValue('');
     }
@@ -122,49 +140,43 @@ const PDFtotifPage = () => {
       setTimeout(() => setError(''), 3000);
       return;
     }
-    if (tags.length > 100) {
-      setTags('');
-      setError('Please enter up to 100 AWBs only!');
-      setTimeout(() => setError(''), 3000);
-    } else {
-      try {
-        setLoading(true);
-        const res = await axios.post(`${url}/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
-        const successful = res.headers['successful'] || [];
-        const failed = res.headers['failed'] || [];
-        setSuccessfulAWBs(JSON.parse(successful).map(item => item.replace(/["']/g, "")));
-        setFailedAWBs(JSON.parse(failed).map(item => item.replace(/["']/g, "")));
-        console.log(res.data);
-        if (res.data.byteLength !== 0) {
-          const blob = new Blob([res.data], { type: 'application/zip' });
-          const url = window.URL.createObjectURL(blob);
-          const date = new Date();
-          const day = String(date.getDate()).padStart(2, '0');
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const year = date.getFullYear();
-          const hours = String(date.getHours()).padStart(2, '0');
-          const minutes = String(date.getMinutes()).padStart(2, '0');
-          const seconds = String(date.getSeconds()).padStart(2, '0');
-          const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
-          const filename = `${timestamp}.zip`;
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', filename);
-          document.body.appendChild(link);
-          link.click();
-          window.URL.revokeObjectURL(url);
-          setSuccess(true);
-          setError('');
-          setTimeout(() => setSuccess(false), 6000);
-        } else {
-          setError('Type mismatch');
-          setTimeout(() => setError(''), 3000);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      const res = await axios.post(`${url}/api/v1/upload-convert`, { awbNumbers: tags, conversionType }, { responseType: 'arraybuffer' });
+      const successful = res.headers['successful'] || [];
+      const failed = res.headers['failed'] || [];
+      setSuccessfulAWBs(JSON.parse(successful).map(item => item.replace(/["']/g, "")));
+      setFailedAWBs(JSON.parse(failed).map(item => item.replace(/["']/g, "")));
+      console.log(res.data);
+      if (res.data.byteLength !== 0) {
+        const blob = new Blob([res.data], { type: 'application/zip' });
+        const url = window.URL.createObjectURL(blob);
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const timestamp = `TIFF_${day}${month}${year}_${hours}${minutes}${seconds}`;
+        const filename = `${timestamp}.zip`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(url);
+        setSuccess(true);
+        setError('');
+        setTimeout(() => setSuccess(false), 6000);
+      } else {
+        setError('Type mismatch');
+        setTimeout(() => setError(''), 3000);
       }
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,7 +216,7 @@ const PDFtotifPage = () => {
       </Button>
     </InputRightElement>
   </InputGroup>
-  <Text color="red.400" fontSize="sm" fontWeight={400} >*Please enter up to 100 AWBs at a time.</Text>
+  <p className="text-red-500">* please enter upto 100 AWB numbers</p>
 </Flex>
         <Flex w="100%" flexDir="col" p={3} justifyContent="center" alignItems="center" mt={5}>
           <Grid templateColumns="repeat(1,1fr)" gap={9} w="100%">

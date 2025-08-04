@@ -2,7 +2,7 @@ import NavItem from "../components/NavItem";
 import avatar from "../assets/avatar1.png";
 import logo from "../assets/lexship.png";
 import { useState } from "react";
-import { FaBox, FaBoxOpen, FaBoxTissue, FaCheckCircle, FaCloudUploadAlt, FaCreativeCommonsZero, FaDatabase, FaDropbox, FaHistory, FaLocationArrow, FaParachuteBox, FaProjectDiagram, FaSync, FaTimes, FaToggleOn, FaToolbox, FaUpload, FaUserPlus } from "react-icons/fa";
+import { FaBox, FaBoxOpen, FaBoxTissue, FaCheckCircle, FaCloudUploadAlt, FaCreativeCommonsZero, FaDatabase, FaDropbox, FaFileInvoice, FaHistory, FaLocationArrow, FaParachuteBox, FaProjectDiagram, FaSync, FaTimes, FaToggleOn, FaToolbox, FaUpload, FaUserPlus } from "react-icons/fa";
 import { GrStatusGood } from "react-icons/gr";
 import { MdLabelOutline } from "react-icons/md";
 import { RiShutDownLine } from "react-icons/ri";
@@ -129,6 +129,7 @@ export default function Sidebar() {
                     <NavItem navSize={navSize} icon={SiConvertio} title="PDF to TIF" link="pdftotif" active={lastPart === 'pdftotif'} />
                     <NavItem navSize={navSize} icon={MdLabelOutline} title="Relabel" link='relabel' active={lastPart === 'relabel'} />
                     <NavItem navSize={navSize} icon={GrStatusGood} title="Status Update" link='statusupdate' active={lastPart === 'statusupdate'} />
+                    <NavItem navSize={navSize} icon={FaFileInvoice} title="Manifest" link='manifest' active={lastPart === 'manifest'} />
                     <NavItem navSize={navSize} icon={FaProjectDiagram} title="Lex Zoho Sync" link='lex-zoho-sync' active={lastPart === 'lex-zoho-sync'} />
                     <NavItem navSize={navSize} icon={FaLocationArrow} title="Tracking" link='tracking' active={lastPart === 'tracking'} />
                 </Box>

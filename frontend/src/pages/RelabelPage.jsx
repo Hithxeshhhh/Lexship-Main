@@ -137,8 +137,33 @@ const Relabel = () => {
             console.log(payload, url);
             const res = await instance.post(url, payload);
             console.log(res.data);
-            const { Success, Fail } = res.data;
-
+            
+            // Check if the response is a string and parse it if necessary
+            let responseData;
+            if (typeof res.data === 'string') {
+                console.log("Response is a string, attempting to extract JSON");
+                try {
+                    // Find the first '{' character to extract just the JSON part
+                    const jsonStartIndex = res.data.indexOf('{');
+                    if (jsonStartIndex !== -1) {
+                        const jsonStr = res.data.substring(jsonStartIndex);
+                        console.log("Extracted JSON string:", jsonStr);
+                        responseData = JSON.parse(jsonStr);
+                    } else {
+                        console.error("No JSON object found in response");
+                        responseData = { Success: [], Fail: [] };
+                    }
+                } catch (err) {
+                    console.error("Error parsing response as JSON:", err);
+                    responseData = { Success: [], Fail: [] };
+                }
+            } else {
+                responseData = res.data;
+            }
+            
+            const { Success = [], Fail = [] } = responseData;
+            console.log("Original Fail array:", Fail);
+            
             // used this function especially for XINDUS provider
             const normalizeKeys = (obj) => {
                 const newObj = {};
@@ -151,20 +176,29 @@ const Relabel = () => {
             };
 
             // Normalize keys in both Success and Fail arrays
-            const normalizedSuccess = Success.map(normalizeKeys);
-            const normalizedFail = Fail.map(normalizeKeys);
+            const normalizedSuccess = Success && Array.isArray(Success) ? Success.map(normalizeKeys) : [];
+            const normalizedFail = Fail && Array.isArray(Fail) ? Fail.map(normalizeKeys) : [];
+            console.log("Normalized Fail array:", normalizedFail);
             
             setSuccessfulAWBs(normalizedSuccess);
-            // added failure message for XINDUS provider
-            setFailedAWBs(normalizedFail.map(item => ({
-              awb: item.FROM_AWB || item.POST11 || item.LEXSHIP_AWB,
-              message: item.MESSAGE
-            })));
+            // Map failed AWBs with specific handling for XINDUS provider
+            if (provider === 'XINDUS') {
+                // For XINDUS, directly access the original fields before normalization
+                setFailedAWBs(Fail && Array.isArray(Fail) ? Fail.map(item => ({
+                  awb: item["LEXSHIP AWB"] || "",
+                  message: item.MESSAGE || ""
+                })) : []);
+            } else {
+                setFailedAWBs(normalizedFail.map(item => ({
+                  awb: item.FROM_AWB || item.POST11 || item.LEXSHIP_AWB,
+                  message: item.MESSAGE
+                })));
+            }
             
             if (normalizedSuccess.length === tags.length) {
                 setSuccess(true);
             } else {
-                setError(`${Fail.length} Invalid or already booked AWBs`);
+                setError(`${normalizedFail.length} Invalid or already booked AWBs`);
             }
 
             setTimeout(() => setSuccess(false), 6000);

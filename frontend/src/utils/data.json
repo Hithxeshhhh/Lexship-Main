@@ -1,194 +1,226 @@
 {
   "statusData": [
-    {
-      "code": 0,
-      "value": "Shipment Created"
-    },
-    {
-      "code": 1,
-      "value": "Pickup Scheduled"
-    },
-    {
-      "code": 2,
-      "value": "Item Picked up"
-    },
-    {
-      "code": 3,
-      "value": "In Transit to LEX Hub"
-    },
-    {
-      "code": 4,
-      "value": "Received at LEX India Hub"
-    },
-    {
-      "code": 5,
-      "value": "LEX India Hub (Operations)"
-    },
-    {
-      "code": 6,
-      "value": "Customs Clearance in Progress"
-    },
-    {
-      "code": 7,
-      "value": "Sent for Customs Clearance"
-    },
-    {
-      "code": 8,
-      "value": "Customs Cleared"
-    },
-    {
-      "code": 9,
-      "value": "Uplifted"
-    },
-    {
-      "code": 10,
-      "value": "Arrived at International transit Hub"
-    },
-    {
-      "code": 11,
-      "value": "Held by destination customs"
-    },
-    {
-      "code": 12,
-      "value": "Item forwarded to the destination country"
-    },
-    {
-      "code": 13,
-      "value": "Item arrived to destination country"
-    },
-    {
-      "code": 14,
-      "value": "Out for delivery"
-    },
-    {
-      "code": 15,
-      "value": "Delivered"
-    },
-    {
-      "code": 16,
-      "value": "Item arrived at collection point for pickup by consignee"
-    },
-    {
-      "code":17,
-      "value":  "Injected into Evri"
-    },
-    {
-      "code": 19,
-      "value": "Delivery attempt"
-    },
-    {
-      "code": 20,
-      "value": "Destination Customs Cleared"
-    },
-    {
-      "code": 21,
-      "value": "Under Process - Customs check"
-    },
-    {
-      "code": 22,
-      "value": "Under Process - Customs check"
-    },
-    {
-      "code": 23,
-      "value": "Released from customs"
-    },
-    {
-      "code": 24,
-      "value": "Item into sorting centre"
-    },
-    {
-      "code": 25,
-      "value": "Available to pickup"
-    },
-    {
-      "code": 26,
-      "value": "Refused delivery"
-    },
-    {
-      "code": 27,
-      "value": "Ready for collection"
-    },
-    {
-      "code": 28,
-      "value": "Unsuccessful delivery attempt"
-    },
-    {
-      "code": 29,
-      "value": "On Hold - Damaged Content"
-    },
-    {
-      "code": 30,
-      "value": "On Hold - Waiting for further action / Information"
-    },
-    {
-      "code": 31,
-      "value": "On Hold - Invalid Zip / Postal Code"
-    },
-    {
-      "code": 32,
-      "value": "On hold - Duties are due on this package"
-    },
-    {
-      "code": 33,
-      "value": "Customer Not available"
-    },
-    {
-      "code": 34,
-      "value": "Unsuccessful delivery attempt"
-    },
-    {
-      "code": 35,
-      "value": "Inject into Royal Mail"
-    },
-    {
-      "code": 36,
-      "value": "Arrived at destination local post office"
-    },
-    {
-      "code": 37,
-      "value": "On Hold - Need to present documentation or additional information"
-    },
-    {
-      "code": 202,
-      "value": "Item Picked up"
-    },
-    {
-      "code": 99,
-      "value": "Over Weight On Hold"
-    },
-    {
-      "code": 100,
-      "value": "Held at Customs"
-    },
-    {
-      "code": 150,
-      "value": "Returned To Origin"
-    },
-    {
-      "code": 204,
-      "value": "Wrong RTS"
-    },
-    {
-      "code": 203,
-      "value": "Pickup Cancelled"
-    },
-    {
-      "code": 200,
-      "value": "Held at LEX Hub"
-    },
-    {
-      "code": 404,
-      "value": "AWB assignment in process"
-    },
-    {
-      "code": 500,
-      "value": "Shipment Cancelled"
-    },
-    {
-      "code": 510,
-      "value": "AWB used for testing"
-    }
-  ],
+  {
+    "code": 0,
+    "value": "Shipment Created"
+  },
+  {
+    "code": 1,
+    "value": "Pickup Scheduled"
+  },
+  {
+    "code": 2,
+    "value": "Item Picked up"
+  },
+  {
+    "code": 3,
+    "value": "In Transit to LEX Hub"
+  },
+  {
+    "code": 4,
+    "value": "Received at LEX India Hub"
+  },
+  {
+    "code": 5,
+    "value": "LEX India Hub (Operations)"
+  },
+  {
+    "code": 6,
+    "value": "Customs Clearance in Progress"
+  },
+  {
+    "code": 7,
+    "value": "Sent for Customs Clearance"
+  },
+  {
+    "code": 8,
+    "value": "Customs Cleared"
+  },
+  {
+    "code": 9,
+    "value": "Uplifted"
+  },
+  {
+    "code": 10,
+    "value": "Arrived at International transit Hub"
+  },
+  {
+    "code": 11,
+    "value": "Held by destination customs"
+  },
+  {
+    "code": 12,
+    "value": "Item forwarded to the destination country"
+  },
+  {
+    "code": 13,
+    "value": "Item arrived to destination country"
+  },
+  {
+    "code": 14,
+    "value": "Out for delivery"
+  },
+  {
+    "code": 15,
+    "value": "Delivered"
+  },
+  {
+    "code": 16,
+    "value": "Item arrived at collection point for pickup by consignee"
+  },
+  {
+    "code": 17,
+    "value": "Injected into Evri"
+  },
+  {
+    "code": 19,
+    "value": "Delivery attempt"
+  },
+  {
+    "code": 20,
+    "value": "Destination Customs Cleared"
+  },
+  {
+    "code": 21,
+    "value": "Under Process - Customs check"
+  },
+  {
+    "code": 22,
+    "value": "In customs authorities"
+  },
+  {
+    "code": 23,
+    "value": "Out of customs authorities"
+  },
+  {
+    "code": 24,
+    "value": "Item into sorting centre"
+  },
+  {
+    "code": 25,
+    "value": "Available to pickup"
+  },
+  {
+    "code": 26,
+    "value": "Refused delivery"
+  },
+  {
+    "code": 27,
+    "value": "Ready for collection"
+  },
+  {
+    "code": 28,
+    "value": "Unsuccessful delivery attempt"
+  },
+  {
+    "code": 29,
+    "value": "On Hold - Damaged Content"
+  },
+  {
+    "code": 30,
+    "value": "On Hold - Waiting for further action / Information"
+  },
+  {
+    "code": 31,
+    "value": "On Hold - Invalid Zip / Postal Code"
+  },
+  {
+    "code": 32,
+    "value": "On hold - Duties are due on this package"
+  },
+  {
+    "code": 33,
+    "value": "Customer Not available"
+  },
+  {
+    "code": 34,
+    "value": "Unsuccessful delivery attempt"
+  },
+  {
+    "code": 35,
+    "value": "Inject into Royal Mail"
+  },
+  {
+    "code": 36,
+    "value": "Arrived at destination local post office"
+  },
+  {
+    "code": 37,
+    "value": "On Hold - Need to present documentation or additional information"
+  },
+  {
+    "code": 38,
+    "value": "Dispatch Received"
+  },
+  {
+    "code": 39,
+    "value": "On Hold - US Customs CBP"
+  },
+  {
+    "code": 40,
+    "value": "Waiting period expired / Unpaid Duties, could not be delivered"
+  },
+  {
+    "code": 41,
+    "value": "Ready for collection by customer"
+  },
+  {
+    "code": 42,
+    "value": "Incorrect address / Contact nearest post office"
+  },
+  {
+    "code": 43,
+    "value": "Available for Collection"
+  },
+  {
+    "code": 44,
+    "value": "CONSIGNEE NOT AVAILABLE"
+  },
+  {
+    "code": 45,
+    "value": "Item held by destination customs"
+  },
+  {
+    "code": 99,
+    "value": "Over Weight On Hold"
+  },
+  {
+    "code": 100,
+    "value": "Held at Customs"
+  },
+  {
+    "code": 150,
+    "value": "Returned To Origin"
+  },
+  {
+    "code": 200,
+    "value": "Held at LEX Hub"
+  },
+  {
+    "code": 203,
+    "value": "Pickup Cancelled"
+  },
+  {
+    "code": 204,
+    "value": "Wrong RTS"
+  },
+  {
+    "code": 250,
+    "value": "Delivered"
+  },
+  {
+    "code": 404,
+    "value": "AWB assignment in process"
+  },
+  {
+    "code": 500,
+    "value": "Shipment Cancelled"
+  },
+  {
+    "code": 510,
+    "value": "AWB used for testing"
+  }  
+],
   "labelData": [
     {
       "name": "EMIRATES",
@@ -212,7 +244,68 @@
     },
     {  
       "name": "RSA", 
-      "api": "api/lexship/xindus" 
+      "api": "api/map/post11/rsa" 
+    }
+  ],
+  "ajwwManifest": [
+    {
+      "name": "Generate Excel from JSON",
+      "method": "POST",
+      "endpoint": "/api/v1/ajww/generate-excel",
+      "description": "Generate Excel file from JSON data"
+    },
+    {
+      "name": "Search Baggings by MAWB",
+      "method": "POST", 
+      "endpoint": "/api/v1/ajww/search-baggings",
+      "description": "Search for all bagging IDs by MAWB number"
+    },
+    {
+      "name": "Search by MAWB and Generate Excel",
+      "method": "POST",
+      "endpoint": "/api/v1/ajww/search-mawb",
+      "description": "Search by MAWB number and generate Excel from database",
+      "requestBody": {
+        "mawbNumber": "098-43864903"
+      }
+    },
+    {
+      "name": "Get JSON Data",
+      "method": "GET",
+      "endpoint": "/api/v1/ajww/json-data",
+      "description": "Get current JSON data for manifest"
+    },
+    {
+      "name": "Update JSON Data",
+      "method": "PUT",
+      "endpoint": "/api/v1/ajww/update-json",
+      "description": "Update JSON data dynamically",
+      "requestBody": {
+        "updates": {
+          "manifest_number": "AJWW-2024-001",
+          "flight_number": "AI-123"
+        }
+      }
+    },
+    {
+      "name": "Download Excel by MAWB",
+      "method": "GET",
+      "endpoint": "/api/v1/ajww/download/:mawbNumber",
+      "description": "Download generated Excel file by MAWB number",
+      "example": "/api/v1/ajww/download/098-43864903"
+    },
+    {
+      "name": "Get All Files",
+      "method": "GET",
+      "endpoint": "/api/v1/ajww/files",
+      "description": "Get list of all generated Excel files"
+    },
+    {
+      "name": "Delete File by MAWB",
+      "method": "DELETE",
+      "endpoint": "/api/v1/ajww/delete-file/:mawbNumber",
+      "description": "Delete generated Excel file by MAWB number",
+      "example": "/api/v1/ajww/delete-file/098-43864903"
     }
   ]
 }

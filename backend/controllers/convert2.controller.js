@@ -170,7 +170,6 @@ async function processBatch(
 exports.convertController2 = async (req, res) => {
   const io = req.app.get("socketio");
   try {
-
     const { successfulDownloads, failedDownloads } = req;
     if (JSON.stringify(successfulDownloads).length !== 2) {
       const inputFolder = path.join(__dirname, "../uploads/");
@@ -270,6 +269,58 @@ exports.convertController2 = async (req, res) => {
     }
   } catch (error) {
     console.error("Error converting PDFs to TIFF:", error);
+    
+    // Clean up any files and directories when an error occurs
+    try {
+      // Clean up ZIP file if it exists
+      const zipFilePath = path.join(__dirname, "../compressed.zip");
+      if (fs.existsSync(zipFilePath)) {
+        fs.unlinkSync(zipFilePath);
+        console.log(`ZIP file ${zipFilePath} deleted during error cleanup.`);
+      }
+      
+      // Clean up PDF files in uploads directory
+      const inputFolder = path.join(__dirname, "../uploads/");
+      if (fs.existsSync(inputFolder)) {
+        const pdfFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith(".pdf"));
+        pdfFiles.forEach(pdfFile => {
+          const pdfFilePath = path.join(inputFolder, pdfFile);
+          fs.unlinkSync(pdfFilePath);
+          console.log(`PDF file ${pdfFilePath} deleted during error cleanup.`);
+        });
+      }
+      
+      // Clean up TIFF files in combinedTif directory
+      const tifFolder = path.join(__dirname, "../combinedTif/");
+      if (fs.existsSync(tifFolder)) {
+        const tifFiles = fs.readdirSync(tifFolder).filter(file => file.endsWith(".tif"));
+        tifFiles.forEach(tifFile => {
+          const tifFilePath = path.join(tifFolder, tifFile);
+          fs.unlinkSync(tifFilePath);
+          console.log(`TIFF file ${tifFilePath} deleted during error cleanup.`);
+        });
+      }
+      
+      // Clean up files in convertedTif directory
+      const convertedTifFolder = path.join(__dirname, "../convertedTif/");
+      if (fs.existsSync(convertedTifFolder)) {
+        const convertedDirs = fs.readdirSync(convertedTifFolder);
+        convertedDirs.forEach(dir => {
+          const dirPath = path.join(convertedTifFolder, dir);
+          if (fs.statSync(dirPath).isDirectory()) {
+            const files = fs.readdirSync(dirPath);
+            files.forEach(file => {
+              fs.unlinkSync(path.join(dirPath, file));
+            });
+            fs.rmdirSync(dirPath);
+            console.log(`Directory ${dirPath} cleaned and removed during error cleanup.`);
+          }
+        });
+      }
+    } catch (cleanupError) {
+      console.error("Error during cleanup after main error:", cleanupError);
+    }
+    
     res.status(500).send("Error converting PDFs to TIFF.");
   }
 };
