@@ -1,90 +1,13 @@
-// const fetch = require('node-fetch');
-// const fs = require('fs');
-
-// async function downloadFileFromAPI(apiUrl, outputPath) {
-//     try {
-//         const response = await fetch(apiUrl, {
-//             headers: {
-//                 'Content-Type': 'application/pdf; charset=utf-8'
-//             }
-//         });
-//         if (!response.ok) {
-//             throw new Error(`Failed to fetch content: ${response.status} ${response.statusText}`);
-//         }
-//         const fileContent = await response.text();
-//         console.log(fileContent)
-//         fs.writeFileSync(outputPath, fileContent,'base64');
-//             console.log('File downloaded and saved successfully.');
-//     } catch (error) {
-//         console.error('Error downloading file:', error);
-//     }
-// }
-
-// const apiUrl = 'https://lexlive2.lexship.biz/clevyTiff/WC213504634GB/true';
-// const outputFilePath = 'output.pdf';
-// downloadFileFromAPI(apiUrl, outputFilePath);
-const fetch = require('node-fetch');
-const fs = require('fs');
-const { file } = require('jszip');
-
-export async function downloadFileFromAPI(apiUrl, outputPath) {
-    try {
-        const response = await fetch(apiUrl, {
-            headers: {
-                'Content-Type': 'application/pdf; charset=utf-8'
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch content: ${response.status} ${response.statusText}`);
-        }
-        const fileContent = await response.buffer(); // Use buffer() to get the response as a Buffer
-        
-        fs.appendFileSync(outputPath, fileContent);
-        console.log('File downloaded and saved successfully.');
-    } catch (error) {
-        console.error('Error downloading file:', error);
-    }
-}
-
-const apiUrl = 'https://live1.lexship.com/show/commercial-invoice/labels/api/WC211400662GB';
-const outputFilePath = 'output.pdf';
-downloadFileFromAPI(apiUrl, outputFilePath);
-// const axios = require('axios');
-
-// const login = async () => {
-//   try {
-//     const response = await axios({
-//       method: 'POST',
-//       url: 'https://lexlive2.lexship.biz/api/auth/login',
-//       headers: {
-//         'Accept': 'application/json',
-//       },
-//       data: {
-//         email: 'test.dev@lexship.com',
-//         password: 'lex$hip07',
-//       },
-//     });
-//     console.log(response.data);
-//   } catch (error) {
-//     console.error('Error:', error.response ? error.response.data : error.message);
-//   }
-// };
-
-// login();
-
-//using sharp library
-
 // const archiver = require("archiver");
 // const { PDFNet } = require("@pdftron/pdfnet-node");
 // const fs = require("fs");
 // const path = require("path");
-// const sharp = require("sharp");
+// const im = require("imagemagick");
 // require("dotenv").config();
 // const { exec } = require("child_process");
 
 // PDFNet.initialize(process.env.API_LICENSE_KEY);
 
-// // Function to compress files to ZIP
 // async function compresstozip(folderPath) {
 //   return new Promise((resolve, reject) => {
 //     console.log(`Compressing files in ${folderPath} to ZIP...`);
@@ -117,7 +40,6 @@ downloadFileFromAPI(apiUrl, outputFilePath);
 //   });
 // }
 
-// // Function to chunk an array into smaller batches
 // function chunkArray(array, chunkSize) {
 //   const chunks = [];
 //   for (let i = 0; i < array.length; i += chunkSize) {
@@ -126,8 +48,13 @@ downloadFileFromAPI(apiUrl, outputFilePath);
 //   return chunks;
 // }
 
-// // Function to combine TIFF files using sharp
-// async function combineTiffsBatch(pdfFiles, batchNumber, io, totalTasks, completedTasks) {
+// async function combineTiffsBatch(
+//   pdfFiles,
+//   batchNumber,
+//   io,
+//   totalTasks,
+//   completedTasks
+// ) {
 //   try {
 //     const outputFolder = path.join(__dirname, "../combinedTif/");
 //     if (!fs.existsSync(outputFolder)) {
@@ -137,7 +64,11 @@ downloadFileFromAPI(apiUrl, outputFilePath);
 //     await Promise.all(
 //       pdfFiles.map(async (pdfFile) => {
 //         const fileName = path.basename(pdfFile, path.extname(pdfFile));
-//         const pdfFolderPath = path.join(__dirname, "../convertedTif/", fileName);
+//         const pdfFolderPath = path.join(
+//           __dirname,
+//           "../convertedTif/",
+//           fileName
+//         );
 
 //         if (!fs.existsSync(pdfFolderPath)) {
 //           console.error(`Folder ${pdfFolderPath} does not exist.`);
@@ -145,53 +76,70 @@ downloadFileFromAPI(apiUrl, outputFilePath);
 //         }
 
 //         const multiPageTiffPath = path.join(outputFolder, `${fileName}.tif`);
-
-//         try {
-//           // Read all TIFF files from the folder
-//           const tifFiles = fs.readdirSync(pdfFolderPath).filter(file => file.endsWith('.tif'));
-
-//           // Process each TIFF file and stack them together
-//           const imageBuffers = await Promise.all(
-//             tifFiles.map(tifFile => 
-//               sharp(path.join(pdfFolderPath, tifFile))
-//                 .resize({ density: 200 })  // Resize if necessary, adjust DPI
-//                 .sharpen(1)                // Apply sharpening
-//                 .toBuffer()                // Convert image to buffer for stacking
-//             )
+//         await new Promise((resolve, reject) => {
+//           im.convert(
+//             [
+//               path.join(pdfFolderPath, "*.tif"),
+//               "-compress",
+//               "LZW",
+//               "-density",
+//               "200",
+//               "-quality",
+//               "100",
+//               "-sharpen",
+//               "0x1.0",
+//               "-extent",
+//               "0x0",
+//               "-append",
+//               multiPageTiffPath,
+//             ],
+//             (err, stdout) => {
+//               if (err) {
+//                 console.error(
+//                   `Error combining TIFF files for ${pdfFile}:`,
+//                   err
+//                 );
+//                 reject(err);
+//               } else {
+//                 if (process.env.NODE_ENV !== "prod")
+//                   console.log(
+//                     `Successfully combined TIFF files for ${pdfFile}`
+//                   );
+//                 fs.rmSync(pdfFolderPath, { recursive: true });
+//                 if (process.env.NODE_ENV !== "prod")
+//                   console.log(`Folder ${pdfFolderPath} deleted.`);
+//                 completedTasks++;
+//                 io.emit("progress", {
+//                   completed: completedTasks,
+//                   total: totalTasks,
+//                 });
+//                 resolve();
+//               }
+//             }
 //           );
-
-//           // Combine all images into one multi-page TIFF
-//           await sharp(imageBuffers[0])
-//             .toFile(multiPageTiffPath);
-
-//           for (let i = 1; i < imageBuffers.length; i++) {
-//             await sharp(imageBuffers[i])
-//               .toFile(multiPageTiffPath);
-//           }
-
-//           console.log(`Successfully combined TIFF files for ${pdfFile}`);
-//           fs.rmSync(pdfFolderPath, { recursive: true });
-//           completedTasks++;
-//           io.emit("progress", { completed: completedTasks, total: totalTasks });
-//         } catch (err) {
-//           console.error(`Error combining TIFF files for ${pdfFile}:`, err);
-//         }
+//         });
 //       })
 //     );
 //   } catch (error) {
 //     console.error("Error combining TIFF files:", error);
 //   }
-
 //   await new Promise((resolve) => setTimeout(resolve, 3000));
 //   return completedTasks;
 // }
 
-// // Function to process each batch of PDFs
-// async function processBatch(pdfFiles, batchNumber, io, totalTasks, completedTasks) {
+// async function processBatch(
+//   pdfFiles,
+//   batchNumber,
+//   io,
+//   totalTasks,
+//   completedTasks
+// ) {
 //   const inputFolder = path.join(__dirname, "../uploads/");
 //   const outputFolder = path.join(__dirname, "../convertedTif/");
 
-//   console.log(`Processing batch ${batchNumber} with ${pdfFiles.length} PDFs...`);
+//   console.log(
+//     `Processing batch ${batchNumber} with ${pdfFiles.length} PDFs...`
+//   );
 
 //   await Promise.all(
 //     pdfFiles.map(async (pdfFile) => {
@@ -231,11 +179,9 @@ downloadFileFromAPI(apiUrl, outputFilePath);
 //   return completedTasks;
 // }
 
-// // Controller to handle the conversion process
 // exports.convertController2 = async (req, res) => {
 //   const io = req.app.get("socketio");
 //   try {
-
 //     const { successfulDownloads, failedDownloads } = req;
 //     if (JSON.stringify(successfulDownloads).length !== 2) {
 //       const inputFolder = path.join(__dirname, "../uploads/");
@@ -335,58 +281,60 @@ downloadFileFromAPI(apiUrl, outputFilePath);
 //     }
 //   } catch (error) {
 //     console.error("Error converting PDFs to TIFF:", error);
+
+//     // Clean up any files and directories when an error occurs
+//     try {
+//       // Clean up ZIP file if it exists
+//       const zipFilePath = path.join(__dirname, "../compressed.zip");
+//       if (fs.existsSync(zipFilePath)) {
+//         fs.unlinkSync(zipFilePath);
+//         console.log(`ZIP file ${zipFilePath} deleted during error cleanup.`);
+//       }
+
+//       // Clean up PDF files in uploads directory
+//       const inputFolder = path.join(__dirname, "../uploads/");
+//       if (fs.existsSync(inputFolder)) {
+//         const pdfFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith(".pdf"));
+//         pdfFiles.forEach(pdfFile => {
+//           const pdfFilePath = path.join(inputFolder, pdfFile);
+//           fs.unlinkSync(pdfFilePath);
+//           console.log(`PDF file ${pdfFilePath} deleted during error cleanup.`);
+//         });
+//       }
+
+//       // Clean up TIFF files in combinedTif directory
+//       const tifFolder = path.join(__dirname, "../combinedTif/");
+//       if (fs.existsSync(tifFolder)) {
+//         const tifFiles = fs.readdirSync(tifFolder).filter(file => file.endsWith(".tif"));
+//         tifFiles.forEach(tifFile => {
+//           const tifFilePath = path.join(tifFolder, tifFile);
+//           fs.unlinkSync(tifFilePath);
+//           console.log(`TIFF file ${tifFilePath} deleted during error cleanup.`);
+//         });
+//       }
+
+//       // Clean up files in convertedTif directory
+//       const convertedTifFolder = path.join(__dirname, "../convertedTif/");
+//       if (fs.existsSync(convertedTifFolder)) {
+//         const convertedDirs = fs.readdirSync(convertedTifFolder);
+//         convertedDirs.forEach(dir => {
+//           const dirPath = path.join(convertedTifFolder, dir);
+//           if (fs.statSync(dirPath).isDirectory()) {
+//             const files = fs.readdirSync(dirPath);
+//             files.forEach(file => {
+//               fs.unlinkSync(path.join(dirPath, file));
+//             });
+//             fs.rmdirSync(dirPath);
+//             console.log(`Directory ${dirPath} cleaned and removed during error cleanup.`);
+//           }
+//         });
+//       }
+//     } catch (cleanupError) {
+//       console.error("Error during cleanup after main error:", cleanupError);
+//     }
+
 //     res.status(500).send("Error converting PDFs to TIFF.");
 //   }
 // };
 
 // PDFNet.shutdown();
-
-
-//sample code to test xindus success.json
-
-const handleSubmit = async () => {
-    try {
-      setLoading(true);
-  
-      // Normalizing keys for easier comparison
-      const normalizeKeys = (obj) => {
-        const newObj = {};
-        for (const key in obj) {
-          const newKey = key.replace(/ /g, "_");
-          newObj[newKey] = obj[key];
-        }
-        return newObj;
-      };
-  
-      const normalizedData = successData.Success.map(normalizeKeys);
-  
-      // Comparing entered AWBs with data from success.json
-      const matchedAWBs = tags.map((tag) =>
-        normalizedData.find((data) =>
-          data["LEXSHIP_AWB"] === tag || data["XINDUS_AWB"] === tag
-        )
-      ).filter(Boolean);
-  
-      const unmatchedAWBs = tags.filter(
-        (tag) =>
-          !normalizedData.some(
-            (data) => data["LEXSHIP_AWB"] === tag || data["XINDUS_AWB"] === tag
-          )
-      );
-  
-      setSuccessfulAWBs(matchedAWBs);
-      setFailedAWBs(unmatchedAWBs);
-  
-      if (matchedAWBs.length === tags.length) {
-        setSuccess(true);
-      } else {
-        setError(`${unmatchedAWBs.length} Invalid or unmatched AWBs`);
-      }
-  
-      setTimeout(() => setSuccess(false), 6000);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };

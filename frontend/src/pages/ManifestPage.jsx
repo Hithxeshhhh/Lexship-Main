@@ -2,7 +2,7 @@ import SideNav from "../components/SideNav";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaArrowRight, FaCheck, FaChevronLeft, FaChevronRight, FaCloud, FaCog, FaDatabase, FaDownload, FaEdit, FaEye, FaFileExcel, FaRocket, FaSearch, FaTrash } from "react-icons/fa";
-import { ajwwManifest } from "../utils/data.json";
+import { ajwwManifest, asendiaManifest } from "../utils/data.json";
 
 import { 
   Alert, 
@@ -84,8 +84,12 @@ const ManifestPage = () => {
 
   // Vendor options
   const vendors = [
-    { value: "ajww", label: "AJWW" }
+    { value: "ajww", label: "AJWW" },
+    { value: "asendia", label: "Asendia" }
   ];
+
+  // Dynamically select manifest config based on vendor
+  const manifestConfig = selectedVendor === "ajww" ? ajwwManifest : asendiaManifest;
 
   // Steps configuration
   const steps = [
@@ -102,8 +106,8 @@ const ManifestPage = () => {
   const fetchJsonData = async () => {
     try {
       setLoading(true);
-      const jsonDataRoute = ajwwManifest.find(route => route.name === "Get JSON Data");
-      const response = await instance.get(jsonDataRoute.endpoint.replace('/ajww/', `/${selectedVendor}/`));
+      const jsonDataRoute = manifestConfig.find(route => route.name === "Get JSON Data");
+      const response = await instance.get(jsonDataRoute.endpoint);
       if (response.data.success) {
         setJsonData(response.data.data);
       }
@@ -159,8 +163,8 @@ const ManifestPage = () => {
       setLoading(true);
       setError("");
       
-      const searchRoute = ajwwManifest.find(route => route.name === "Search by MAWB and Generate Excel");
-      const endpoint = searchRoute.endpoint.replace('/ajww/', `/${selectedVendor}/`);
+      const searchRoute = manifestConfig.find(route => route.name === "Search by MAWB and Generate Excel");
+      const endpoint = searchRoute.endpoint;
       
       console.log('Making request to:', endpoint);
       console.log('Request body:', { mawbNumber: trimmedValue });
@@ -177,8 +181,9 @@ const ManifestPage = () => {
         // Auto download the generated file
         try {
           const mawbNumber = trimmedValue;
-          const downloadRoute = ajwwManifest.find(route => route.name === "Download Excel by MAWB");
-          const downloadResponse = await instance.get(downloadRoute.endpoint.replace('/ajww/', `/${selectedVendor}/`).replace(':mawbNumber', mawbNumber), {
+          const downloadRoute = manifestConfig.find(route => route.name === "Download Excel by MAWB");
+          const downloadEndpoint = downloadRoute.endpoint.replace(':mawbNumber', mawbNumber);
+          const downloadResponse = await instance.get(downloadEndpoint, {
             responseType: 'blob'
           });
           
@@ -201,7 +206,8 @@ const ManifestPage = () => {
           
           // Delete the file from server after download
           try {
-            const deleteEndpoint = `/api/v1/${selectedVendor}/delete-file/${mawbNumber}`;
+            const deleteRoute = manifestConfig.find(route => route.name === "Delete File by MAWB");
+            const deleteEndpoint = deleteRoute.endpoint.replace(':mawbNumber', mawbNumber);
             await instance.delete(deleteEndpoint);
             console.log('File deleted from server successfully');
           } catch (deleteError) {
@@ -252,8 +258,8 @@ const ManifestPage = () => {
 
     try {
       setLoading(true);
-      const updateRoute = ajwwManifest.find(route => route.name === "Update JSON Data");
-      const response = await instance.put(updateRoute.endpoint.replace('/ajww/', `/${selectedVendor}/`), {
+      const updateRoute = manifestConfig.find(route => route.name === "Update JSON Data");
+      const response = await instance.put(updateRoute.endpoint, {
         updates: {
           [selectedField]: fieldValue.trim()
         }
@@ -672,11 +678,22 @@ const ManifestPage = () => {
                   _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3B82F6" }}
                 >
                   <option value="" style={{backgroundColor: '#374151'}}>Choose a field...</option>
-                  {jsonData && Object.keys(jsonData.manifest_data).map(key => (
-                    <option key={key} value={key} style={{backgroundColor: '#374151'}}>
-                      {key.replace(/_/g, ' ').toUpperCase()}
-                    </option>
-                  ))}
+                  {jsonData && (() => {
+                    // Handle different JSON structures for AJWW vs Asendia
+                    let templateData;
+                    if (selectedVendor === "ajww") {
+                      // AJWW uses object structure
+                      templateData = jsonData.manifest_data;
+                    } else {
+                      // Asendia now uses object structure like AJWW
+                      templateData = jsonData.manifest_data || {};
+                    }
+                    return Object.keys(templateData).map(key => (
+                      <option key={key} value={key} style={{backgroundColor: '#374151'}}>
+                        {key.replace(/_/g, ' ').toUpperCase()}
+                      </option>
+                    ));
+                  })()}
                 </Select>
               </VStack>
               

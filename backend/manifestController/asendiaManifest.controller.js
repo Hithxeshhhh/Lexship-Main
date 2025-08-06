@@ -9,7 +9,7 @@ const searchBaggingsByMAWB = async (req, res) => {
         const { mawbNumber } = req.body;
         
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
         if (!mawbNumber) {
             return res.status(400).json({
@@ -58,7 +58,7 @@ const searchByMAWBAndGenerateExcel = async (req, res) => {
         const { mawbNumber } = req.body;
         
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
         if (!mawbNumber) {
             return res.status(400).json({
@@ -68,7 +68,7 @@ const searchByMAWBAndGenerateExcel = async (req, res) => {
         }
 
         // Read JSON file for static data
-        const jsonFilePath = path.join(__dirname, '../data/ajww.json');
+        const jsonFilePath = path.join(__dirname, '../data/asendia.json');
         const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
 
         // Step 1: Search baggings table for ALL IDs with the given MAWB
@@ -114,7 +114,7 @@ const searchByMAWBAndGenerateExcel = async (req, res) => {
         // Step 4: Search customer_shipments table for each AWB number
         const placeholders = awbNumbers.map(() => '?').join(',');
         const [shipmentsResult] = await pool.execute(
-            `SELECT awb_number, payload, customer_id, received_weight FROM customer_shippments WHERE awb_number IN (${placeholders})`,
+            `SELECT awb_number, payload, customer_id, weight, hsn_code FROM customer_shippments WHERE awb_number IN (${placeholders})`,
             awbNumbers
         );
 
@@ -128,8 +128,8 @@ const searchByMAWBAndGenerateExcel = async (req, res) => {
         // Process payload data and map to Excel headers
         const mappedData = [];
         
-        // Get static data from JSON file for orange headers
-        const staticData = jsonData.manifest_data;
+        // Get static data from JSON file for headers
+        const staticData = jsonData.manifest_data; // Asendia now uses object structure like AJWW
         
         for (const shipment of shipmentsResult) {
             try {
@@ -245,7 +245,7 @@ const searchByMAWBAndGenerateExcel = async (req, res) => {
                     }
                 }
                 
-                const mappedRow = await mapPayloadToExcelHeaders(payload, shipment.awb_number, staticData, mawbNumber, flightNumber, companyName, convertedValue, finalCurrencyCode, shipment.received_weight, userMobile);
+                const mappedRow = await mapPayloadToExcelHeaders(payload, shipment.awb_number, staticData, mawbNumber, flightNumber, companyName, convertedValue, finalCurrencyCode, shipment.weight, userMobile, shipment.hsn_code);
                 mappedData.push(mappedRow);
             } catch (error) {
                 console.error(`Error parsing payload for AWB ${shipment.awb_number}:`, error);
@@ -321,97 +321,67 @@ const convertStateCodeToName = async (stateCode) => {
     return stateCode; // Return as is if it's already a full name
 };
 
-const mapPayloadToExcelHeaders = async (payload, awbNumber, staticData, mawbNumberFromReq, flightNumber, companyName, convertedValue, finalCurrencyCode, receivedWeight, userMobile) => {
+const mapPayloadToExcelHeaders = async (payload, awbNumber, staticData, mawbNumberFromReq, flightNumber, companyName, convertedValue, finalCurrencyCode, weight, userMobile, hsnCode) => {
     const mapping = {
-        // MAWB Level Data - Static from JSON
-        'manifest_number': staticData['manifest_number'] || '',
-        'flight_number': flightNumber || '', // Use flight number from database
-        'flight_date': staticData['flight_date'] || '',
-        'mawb_number': mawbNumberFromReq || '', // Use MAWB from request body
-        'hawb_number': staticData['hawb_number'] || '',
-        'mawb_origin': staticData['mawb_origin'] || '',
-        'mawb_destination': staticData['mawb_destination'] || '',
-        'total_bags': staticData['total_bags'] || '',
-        'total_weight': staticData['total_weight'] || '',
-        'manifest_value_type': staticData['manifest_value_type'] || '',
-        
-        // MAWB Shipper Data - Static from JSON
-        'mawb_shipper_name': staticData['mawb_shipper_name'] || '',
-        'mawb_shipper_street_address_line_1': staticData['mawb_shipper_street_address_line_1'] || '',
-        'mawb_shipper_street_address_line_2': staticData['mawb_shipper_street_address_line_2'] || '',
-        'mawb_shipper_city': staticData['mawb_shipper_city'] || '',
-        'mawb_shipper_county_or_state': staticData['mawb_shipper_county_or_state'] || '',
-        'mawb_shipper_postal_code': staticData['mawb_shipper_postal_code'] || '',
-        'mawb_shipper_country_code': staticData['mawb_shipper_country_code'] || '',
-        'mawb_shipper_tel': staticData['mawb_shipper_tel'] || '',
-        'mawb_shipper_email': staticData['mawb_shipper_email'] || '',
-        
-        // MAWB Consignee Data - Static from JSON
-        'mawb_consignee_name': staticData['mawb_consignee_name'] || '',
-        'mawb_consignee_street_address_line_1': staticData['mawb_consignee_street_address_line_1'] || '',
-        'mawb_consignee_street_address_line_2': staticData['mawb_consignee_street_address_line_2'] || '',
-        'mawb_consignee_city': staticData['mawb_consignee_city'] || '',
-        'mawb_consignee_county_or_state': staticData['mawb_consignee_county_or_state'] || '',
-        'mawb_consignee_postal_code': staticData['mawb_consignee_postal_code'] || '',
-        'mawb_consignee_country_code': staticData['mawb_consignee_country_code'] || '',
-        'mawb_consignee_tel': staticData['mawb_consignee_tel'] || '',
-        'mawb_consignee_email': staticData['mawb_consignee_email'] || '',
-        
-        // Consignment Level Data - From Database Payload
-        'consignment_number': awbNumber || '',
-        'shipper_name': companyName || '',
-        'shipper_street_address_line_1': payload.sellerAddress || '',
-        'shipper_street_address_line_2': payload.sellerCity || '',
-        'shipper_city': payload.sellerCity || '',
-        'shipper_county_or_state': await convertStateCodeToName(payload.sellerState) || '',
-        'shipper_postal_code': payload.sellerPincode || '',
-        'shipper_country_code': payload.sellercountrycode || '',
-        'shipper_tel': userMobile || payload.sellerMobile || '',
-        'shipper_email': payload.sellerEmail || '',
-        'consignee_name': `${payload.consigneeFirstName || ''} ${payload.consigneeLastName || ''}`.trim(),
-        'consignee_street_address_line_1': payload.consigneeAddress || '',
-        'consignee_street_address_line_2': payload.consigneeCity || '',
-        'consignee_city': payload.consigneeCity || '',
-        'consignee_county_or_state': payload.consigneeState || '',
-        'consignee_postal_code': payload.consigneePincode || '',
-        'consignee_country_code': payload.consigneeCountryCode || '',
-        'consignee_tel': payload.consigneeMobile || '',
-        'consignee_email': payload.consigneeEmail || '',
-        'pieces': payload.Pcs || '',
-        'weight': receivedWeight || '',
-        'description': payload.productDescription || '',
-        'value': convertedValue || payload.productValue || '',
-        'value_currency_code': finalCurrencyCode || payload.productcurrency || '',
-        'service_info': '',
-        'bag_numbers': ''
+        // Asendia specific field mapping
+        'Consignment Number': awbNumber || '',
+        'Reference':  '',
+        'Reference.1':  '',
+        'Container Label': '',
+        'Internal Account Number': '',
+        'Shippers Name': companyName || '',
+        'Shipper Address 1': payload.sellerAddress || '',
+        'Shipper Address 2': '',
+        'Shipper Address 3': '',
+        'Shipper City': payload.sellerCity || '',
+        'Shipper State': await convertStateCodeToName(payload.sellerState) || '',
+        'Shipper Zip/Postcode': payload.sellerPincode || '',
+        'Shipper Country Code': payload.sellercountrycode || '',
+        'Shippers IOSS': '',
+        'Consignee': `${payload.consigneeFirstName || ''} ${payload.consigneeLastName || ''}`.trim(),
+        'Consignee Address 1': payload.consigneeAddress || '',
+        'Consignee Address 2': '',
+        'Consignee Address 3': '',
+        'Consignee City': payload.consigneeCity || '',
+        'Consignee State': payload.consigneeState || '',
+        'Consignee Zip/Postcode': payload.consigneePincode || '',
+        'Consignee Country Code': payload.consigneeCountryCode || '',
+        'Consignee Email': payload.consigneeEmail || '',
+        'Consignee Phone': payload.consigneeMobile || '',
+        'Consignee EORI': '',
+        'Pieces': 1 || '',
+        'Total Weight': weight || '',
+        'Weight UOM': 'KGS',
+        'Total Value': convertedValue || payload.productValue || '',
+        'Currency': finalCurrencyCode || payload.productcurrency || '',
+        'Incoterms': staticData['Incoterms'] || 'DDU',
+        'Shipping Rate': '',
+        'Vendor': '',
+        'Service': '',
+        'Shipment Additional Info': '',
+        'Item Description': payload.productDescription || '',
+        'Item HS Code': hsnCode || '',
+        'Item Quantity': payload.Pcs || '',
+        'Item Value': (() => {
+            const pcs = parseInt(payload.Pcs) || 1;
+            if (pcs === 1) {
+                return convertedValue || payload.productValue || '';
+            } else {
+                const value = parseFloat(convertedValue) || parseFloat(payload.productValue) || 0;
+                return (value / pcs).toFixed(2);
+            }
+        })(),
+        'Item SKU': '',
+        'Item Country Of Origin': payload.sellercountrycode || '',
+        'Sales Weblink': '',
+        'Item Additional Info': ''
     };
 
     return mapping;
 };
 
-// Function to apply Excel styling
+// Function to apply Excel styling - All headers with yellow background and black bold text
 const applyExcelStyling = (worksheet, headers) => {
-    // Define header groups
-    const orangeHeaders = [
-        'manifest_number', 'flight_number', 'flight_date', 'mawb_number', 'hawb_number',
-        'mawb_origin', 'mawb_destination', 'total_bags', 'total_weight', 'manifest_value_type',
-        'mawb_shipper_name', 'mawb_shipper_street_address_line_1', 'mawb_shipper_street_address_line_2',
-        'mawb_shipper_city', 'mawb_shipper_county_or_state', 'mawb_shipper_postal_code',
-        'mawb_shipper_country_code', 'mawb_shipper_tel', 'mawb_shipper_email',
-        'mawb_consignee_name', 'mawb_consignee_street_address_line_1', 'mawb_consignee_street_address_line_2',
-        'mawb_consignee_city', 'mawb_consignee_county_or_state', 'mawb_consignee_postal_code',
-        'mawb_consignee_country_code', 'mawb_consignee_tel', 'mawb_consignee_email'
-    ];
-
-    const darkBlueHeaders = [
-        'consignment_number', 'shipper_name', 'shipper_street_address_line_1', 'shipper_street_address_line_2',
-        'shipper_city', 'shipper_county_or_state', 'shipper_postal_code', 'shipper_country_code',
-        'shipper_tel', 'shipper_email', 'consignee_name', 'consignee_street_address_line_1',
-        'consignee_street_address_line_2', 'consignee_city', 'consignee_county_or_state',
-        'consignee_postal_code', 'consignee_country_code', 'consignee_tel', 'consignee_email',
-        'pieces', 'weight', 'description', 'value', 'value_currency_code', 'service_info', 'bag_numbers'
-    ];
-
     // Apply styling to all rows
     worksheet.eachRow((row, rowNumber) => {
         row.eachCell((cell, colNumber) => {
@@ -421,7 +391,8 @@ const applyExcelStyling = (worksheet, headers) => {
             cell.font = {
                 name: 'Aptos Narrow',
                 size: 11,
-                color: { argb: 'FF000000' }
+                color: { argb: 'FF000000' },
+                bold: rowNumber === 1 // Bold for header row only
             };
             
             cell.alignment = {
@@ -429,21 +400,13 @@ const applyExcelStyling = (worksheet, headers) => {
                 vertical: 'middle'
             };
 
-            // Set background color for header row only
+            // Set background color for header row only - All headers yellow
             if (rowNumber === 1) {
-                if (orangeHeaders.includes(headerName)) {
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFFFE6CC' }
-                    };
-                } else if (darkBlueHeaders.includes(headerName)) {
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFE6F3FF' }
-                    };
-                }
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFFFFF00' } // Yellow background for all headers
+                };
             }
         });
     });
@@ -459,10 +422,10 @@ const applyExcelStyling = (worksheet, headers) => {
 const generateExcelFromJSON = async (req, res) => {
     try {
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
         // Read the JSON file
-        const jsonFilePath = path.join(__dirname, '../data/ajww.json');
+        const jsonFilePath = path.join(__dirname, '../data/asendia.json');
         
         if (!fs.existsSync(jsonFilePath)) {
             return res.status(404).json({
@@ -472,7 +435,7 @@ const generateExcelFromJSON = async (req, res) => {
         }
 
         const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
-        const manifestData = jsonData.manifest_data;
+        const manifestData = jsonData.manifest_data; // Asendia now uses object structure like AJWW
 
         // Create a new workbook and worksheet
         const workbook = new ExcelJS.Workbook();
@@ -488,28 +451,7 @@ const generateExcelFromJSON = async (req, res) => {
         // Add values row
         const valueRow = worksheet.addRow(values);
 
-        // Define the header groups for background colors based on JSON structure
-        const orangeHeaders = [
-            'manifest_number', 'flight_number', 'flight_date', 'mawb_number', 'hawb_number',
-            'mawb_origin', 'mawb_destination', 'total_bags', 'total_weight', 'manifest_value_type',
-            'mawb_shipper_name', 'mawb_shipper_street_address_line_1', 'mawb_shipper_street_address_line_2',
-            'mawb_shipper_city', 'mawb_shipper_county_or_state', 'mawb_shipper_postal_code',
-            'mawb_shipper_country_code', 'mawb_shipper_tel', 'mawb_shipper_email',
-            'mawb_consignee_name', 'mawb_consignee_street_address_line_1', 'mawb_consignee_street_address_line_2',
-            'mawb_consignee_city', 'mawb_consignee_county_or_state', 'mawb_consignee_postal_code',
-            'mawb_consignee_country_code', 'mawb_consignee_tel', 'mawb_consignee_email'
-        ];
-
-        const darkBlueHeaders = [
-            'consignment_number', 'shipper_name', 'shipper_street_address_line_1', 'shipper_street_address_line_2',
-            'shipper_city', 'shipper_county_or_state', 'shipper_postal_code', 'shipper_country_code',
-            'shipper_tel', 'shipper_email', 'consignee_name', 'consignee_street_address_line_1',
-            'consignee_street_address_line_2', 'consignee_city', 'consignee_county_or_state',
-            'consignee_postal_code', 'consignee_country_code', 'consignee_tel', 'consignee_email',
-            'pieces', 'weight', 'description', 'value', 'value_currency_code', 'service_info', 'bag_numbers'
-        ];
-
-        // Set font and background for header row
+        // Set font and background for header row - All headers yellow with black bold text
         headerRow.eachCell((cell, colNumber) => {
             const headerName = headers[colNumber - 1];
             
@@ -517,7 +459,8 @@ const generateExcelFromJSON = async (req, res) => {
             cell.font = {
                 name: 'Aptos Narrow',
                 size: 11,
-                color: { argb: 'FF000000' }
+                color: { argb: 'FF000000' },
+                bold: true
             };
             
             cell.alignment = {
@@ -525,20 +468,12 @@ const generateExcelFromJSON = async (req, res) => {
                 vertical: 'middle'
             };
 
-            // Set background color based on header group
-            if (orangeHeaders.includes(headerName)) {
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFFFE6CC' } // Orange Accent 2, Lighter 80%
-                };
-            } else if (darkBlueHeaders.includes(headerName)) {
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFE6F3FF' } // Dark Blue, Text 2, Lighter 90%
-                };
-            }
+            // Set background color - All headers yellow
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFFFFF00' } // Yellow background for all headers
+            };
         });
 
         // Set font for values row (no background color)
@@ -562,7 +497,7 @@ const generateExcelFromJSON = async (req, res) => {
 
         // Generate filename with timestamp
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        const filename = `ajww_manifest_${timestamp}.xlsx`;
+        const filename = `asendia_manifest_${timestamp}.xlsx`;
         const outputPath = path.join(__dirname, '../manifestUploads', filename);
 
         // Write Excel file
@@ -580,10 +515,7 @@ const generateExcelFromJSON = async (req, res) => {
             headers: headers,
             data: manifestData,
             stylingApplied: true,
-            headerGroups: {
-                orangeHeaders: orangeHeaders.length,
-                darkBlueHeaders: darkBlueHeaders.length
-            }
+            headerStyle: 'Yellow background with black bold text'
         });
 
     } catch (error) {
@@ -600,7 +532,7 @@ const generateExcelFromJSON = async (req, res) => {
 const updateJSONData = async (req, res) => {
     try {
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
         const { updates } = req.body;
         
@@ -611,7 +543,7 @@ const updateJSONData = async (req, res) => {
             });
         }
 
-        const jsonFilePath = path.join(__dirname, '../data/ajww.json');
+        const jsonFilePath = path.join(__dirname, '../data/asendia.json');
         
         if (!fs.existsSync(jsonFilePath)) {
             return res.status(404).json({
@@ -623,7 +555,7 @@ const updateJSONData = async (req, res) => {
         // Read current JSON data
         const currentData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
         
-        // Update the manifest_data with new values
+        // Update the manifest_data with new values (Asendia now uses object structure like AJWW)
         if (currentData.manifest_data) {
             Object.assign(currentData.manifest_data, updates);
         } else {
@@ -654,9 +586,9 @@ const updateJSONData = async (req, res) => {
 const getJSONData = async (req, res) => {
     try {
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
-        const jsonFilePath = path.join(__dirname, '../data/ajww.json');
+        const jsonFilePath = path.join(__dirname, '../data/asendia.json');
         
         if (!fs.existsSync(jsonFilePath)) {
             return res.status(404).json({
@@ -687,7 +619,7 @@ const getJSONData = async (req, res) => {
 const deleteExcelFile = async (req, res) => {
     try {
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
         const mawbNumber = req.params.mawbNumber;
         const uploadsDir = path.join(__dirname, '../manifestUploads');
@@ -744,7 +676,7 @@ const deleteExcelFile = async (req, res) => {
 const downloadExcelFile = async (req, res) => {
     try {
         // Add vendor information to request object
-        req.vendor = "ajww";
+        req.vendor = "asendia";
         
         const mawbNumber = req.params.mawbNumber;
         const uploadsDir = path.join(__dirname, '../manifestUploads');

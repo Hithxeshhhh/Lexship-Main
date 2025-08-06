@@ -251,29 +251,23 @@
     {
       "name": "Generate Excel from JSON",
       "method": "POST",
-      "endpoint": "/api/v1/ajww/generate-excel",
-      "description": "Generate Excel file from JSON data"
+      "endpoint": "/api/v1/ajww/generate-excel"
+      
     },
     {
       "name": "Search Baggings by MAWB",
       "method": "POST", 
-      "endpoint": "/api/v1/ajww/search-baggings",
-      "description": "Search for all bagging IDs by MAWB number"
+      "endpoint": "/api/v1/ajww/search-baggings"
     },
     {
       "name": "Search by MAWB and Generate Excel",
       "method": "POST",
-      "endpoint": "/api/v1/ajww/search-mawb",
-      "description": "Search by MAWB number and generate Excel from database",
-      "requestBody": {
-        "mawbNumber": "098-43864903"
-      }
+      "endpoint": "/api/v1/ajww/search-mawb"
     },
     {
       "name": "Get JSON Data",
       "method": "GET",
-      "endpoint": "/api/v1/ajww/json-data",
-      "description": "Get current JSON data for manifest"
+      "endpoint": "/api/v1/ajww/json-data"
     },
     {
       "name": "Update JSON Data",
@@ -282,30 +276,67 @@
       "description": "Update JSON data dynamically",
       "requestBody": {
         "updates": {
-          "manifest_number": "AJWW-2024-001",
-          "flight_number": "AI-123"
+          "manifest_number": "AJWW-2024-001"
         }
       }
     },
     {
       "name": "Download Excel by MAWB",
       "method": "GET",
-      "endpoint": "/api/v1/ajww/download/:mawbNumber",
-      "description": "Download generated Excel file by MAWB number",
-      "example": "/api/v1/ajww/download/098-43864903"
+      "endpoint": "/api/v1/ajww/download/:mawbNumber"
+      
     },
     {
       "name": "Get All Files",
       "method": "GET",
-      "endpoint": "/api/v1/ajww/files",
-      "description": "Get list of all generated Excel files"
+      "endpoint": "/api/v1/ajww/files"
     },
     {
       "name": "Delete File by MAWB",
       "method": "DELETE",
-      "endpoint": "/api/v1/ajww/delete-file/:mawbNumber",
-      "description": "Delete generated Excel file by MAWB number",
-      "example": "/api/v1/ajww/delete-file/098-43864903"
+      "endpoint": "/api/v1/ajww/delete-file/:mawbNumber"
+    }
+  ],
+  "asendiaManifest": [
+    {
+      "name": "Generate Excel from JSON",
+      "method": "POST",
+      "endpoint": "/api/v1/asendia/generate-excel"
+    },
+    {
+      "name": "Search Baggings by MAWB",
+      "method": "POST",
+      "endpoint": "/api/v1/asendia/search-baggings"
+    },
+    {
+      "name": "Search by MAWB and Generate Excel",
+      "method": "POST",
+      "endpoint": "/api/v1/asendia/search-mawb"
+    },
+    {
+      "name": "Get JSON Data",
+      "method": "GET",
+      "endpoint": "/api/v1/asendia/json-data"
+    },
+    {
+      "name": "Update JSON Data",
+      "method": "PUT",
+      "endpoint": "/api/v1/asendia/update-json"
+    },
+    {
+      "name": "Download Excel by MAWB",
+      "method": "GET",
+      "endpoint": "/api/v1/asendia/download/:mawbNumber"
+    },
+    {
+      "name": "Get All Files",
+      "method": "GET",
+      "endpoint": "/api/v1/asendia/files"
+    },
+    {
+      "name": "Delete File by MAWB",
+      "method": "DELETE",
+      "endpoint": "/api/v1/asendia/delete-file/:mawbNumber"
     }
   ]
 }
